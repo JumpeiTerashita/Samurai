@@ -7,15 +7,18 @@ using DG.Tweening;
 
 public class TitleScene : MonoBehaviour
 {
-   
     GameObject Black;
     Image image;
+    AudioSource audioPlayer;
 
+    [SerializeField]
+    AudioClip _SubmitSE;
     // Use this for initialization
     void Start()
     {
         Black = GameObject.Find("Black");
         image = Black.GetComponent<Image>();
+        audioPlayer = this.GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -25,10 +28,8 @@ public class TitleScene : MonoBehaviour
         if (Input.GetButtonDown("Submit"))
         {
             Debug.Log("Pushed");
-
+            audioPlayer.PlayOneShot(_SubmitSE);
             StartCoroutine(Fading());
-            
-            
         }
         
 

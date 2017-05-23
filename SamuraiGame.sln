@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamuraiGame.Plugins", "SamuraiGame.Plugins.csproj", "{38B6633F-8349-B3ED-E37C-FC383DDDB9AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamuraiGame", "SamuraiGame.csproj", "{A893E131-A5E5-1391-DD45-805FC4B27CF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamuraiGame.Editor.Plugins", "SamuraiGame.Editor.Plugins.csproj", "{2C72311B-F7E3-25B4-1DBC-E0A4B6F82B4A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38B6633F-8349-B3ED-E37C-FC383DDDB9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38B6633F-8349-B3ED-E37C-FC383DDDB9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38B6633F-8349-B3ED-E37C-FC383DDDB9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38B6633F-8349-B3ED-E37C-FC383DDDB9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A893E131-A5E5-1391-DD45-805FC4B27CF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A893E131-A5E5-1391-DD45-805FC4B27CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A893E131-A5E5-1391-DD45-805FC4B27CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A893E131-A5E5-1391-DD45-805FC4B27CF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C72311B-F7E3-25B4-1DBC-E0A4B6F82B4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C72311B-F7E3-25B4-1DBC-E0A4B6F82B4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C72311B-F7E3-25B4-1DBC-E0A4B6F82B4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C72311B-F7E3-25B4-1DBC-E0A4B6F82B4A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
