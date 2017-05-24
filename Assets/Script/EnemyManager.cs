@@ -16,25 +16,28 @@ public class EnemyManager : MonoBehaviour
     void Start()
     {
         Player = GameObject.Find("Player");
-        InvokeRepeating("EnemySpawn", 0.0f, SpawnSpan);
+        InvokeRepeating("EnemySpawn", 3.0f, SpawnSpan);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    
 
     void EnemySpawn()
-    {
+    {    
         Vector3 PlayerPos = Player.transform.position;
         SpawnedEnemy = Instantiate(Enemy, new Vector3(Random.Range(-10.0f,10.0f), 0, Random.Range(-10.0f, 10.0f)), Quaternion.identity);
         Animator SpawnedEnemyAnim = GameObjectManager.getAnimator(SpawnedEnemy);
         SpawnedEnemy.transform.LookAt(Player.transform.position);
         SpawnedEnemyAnim.Play("Locomotion.Born");
     }
-
-
+    
+    public void SetEnemySpawn(Vector3 _SetPos,float _RandomRange)
+    {
+        Vector3 PlayerPos = Player.transform.position;
+        SpawnedEnemy = Instantiate(Enemy, new Vector3(_SetPos.x+Random.Range(-_RandomRange, _RandomRange), 0, _SetPos.z+Random.Range(-_RandomRange, _RandomRange)), Quaternion.identity);
+        Animator SpawnedEnemyAnim = GameObjectManager.getAnimator(SpawnedEnemy);
+        SpawnedEnemy.transform.LookAt(Player.transform.position);
+        SpawnedEnemyAnim.Play("Locomotion.Born");
+    }
 
 
 }

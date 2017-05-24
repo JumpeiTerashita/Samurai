@@ -18,6 +18,7 @@ public class EnemyBehavior : MonoBehaviour
     //private float direction = 0;
     Locomotion locomotion = null;
     AnimatorStateInfo state;
+
     
 
     [SerializeField]
@@ -25,12 +26,14 @@ public class EnemyBehavior : MonoBehaviour
 
     [SerializeField]
     GameObject bloodParticle;
+
+    bool IsDead;
     // Use this for initialization
     void Start()
     {
         Player = GameObject.Find("Player");
         animator = GetComponent<Animator>();
-        
+        IsDead = false;
         locomotion = new Locomotion(animator);
         state = animator.GetCurrentAnimatorStateInfo(0);
         boxCol.enabled = false;
@@ -39,6 +42,8 @@ public class EnemyBehavior : MonoBehaviour
 
     void Update()
     {
+        if (IsDead||!KilledNum.IsStarted) return;
+
         if (animator)
         {
             state = animator.GetCurrentAnimatorStateInfo(0);
@@ -125,8 +130,9 @@ public class EnemyBehavior : MonoBehaviour
 
     public void PlayerKatanaHit()
     {
-        if (!animator.GetBool("Death"))
+        if (!animator.GetBool("Death")&&!IsDead)
         {
+            IsDead = true;
             animator.SetFloat("Speed", 0.0f);
             Debug.Log("Hit");
             //animator.SetBool("Attacking", false);
@@ -149,10 +155,7 @@ public class EnemyBehavior : MonoBehaviour
 
     void KatanaDisabled()
     {
-        
         boxCol.enabled = false;
-        
-
     }
 
 

@@ -22,7 +22,7 @@ public class EnemyAttack : MonoBehaviour
         Player = GameObject.Find("Player");
         SoundManager = GameObject.Find("SoundManager");
         SE = SoundManager.GetComponentInChildren<SEManager>();
-
+        SparkParticle = null;
         oneHit = false;
     }
 
@@ -35,9 +35,6 @@ public class EnemyAttack : MonoBehaviour
 
         if (!IsDeath_Player)
         {
-
-
-
             if (!IsGuard_Player && !IsCounterAttacking && col.tag == "Hero")
             {
                 Debug.Log("プレイヤーに当たった");
@@ -49,14 +46,9 @@ public class EnemyAttack : MonoBehaviour
                 SE.SEStart(3);
                 GameObjectManager.getAnimator(Player).SetTrigger("KnockBack");
                 CameraMove.ShakeCamera();
-                SparkParticle = Instantiate(WeaponSpark);
-                SparkParticle.transform.position = transform.position;
+                SparkParticle = Instantiate(WeaponSpark,transform.position,Quaternion.identity);   
                 Invoke("KillSpark", 0.2f);
             }
-
-
-
-
         }
 
        

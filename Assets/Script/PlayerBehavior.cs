@@ -61,6 +61,8 @@ public class PlayerBehavior: MonoBehaviour
 
     void Update()
     {
+        if (!KilledNum.IsStarted) return;
+
         if (animator && Camera.main && !animator.GetBool("Death"))
         {
             if (IsCrisis&&!MakeAura)
@@ -68,7 +70,7 @@ public class PlayerBehavior: MonoBehaviour
                 IsCrisis = false;
                 MakeAura = Instantiate(CrisisAura,new Vector3(transform.position.x,transform.position.y+1.0f,transform.position.z),Quaternion.identity);
                 Invoke("DestroyAura",1.0f);
-                
+                SE.SEStart(8);
             }
 
             JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
@@ -113,7 +115,7 @@ public class PlayerBehavior: MonoBehaviour
                 if (Input.GetKeyUp(KeyCode.B) || Input.GetButtonUp("Guard"))
                 {
                     PlayerMutekiEnabled();
-                    Invoke("PlayerMutekiDisabled",0.5f);
+                    Invoke("PlayerMutekiDisabled",2f);
                     animator.SetBool("Guard", false);
                     animator.SetTrigger("CounterAttack");
                     Instantiate(Flash,boxCol.transform.position,Quaternion.identity);
@@ -185,6 +187,7 @@ public class PlayerBehavior: MonoBehaviour
 
     void PlayerMutekiDisabled()
     {
+        Debug.Log("Muteki Disabled");
         playerBody.enabled = true;
     }
 
@@ -235,6 +238,6 @@ public class PlayerBehavior: MonoBehaviour
         StartCoroutine(FadeDisp.FadeOut());
     }
 
-
+    
 
 }
