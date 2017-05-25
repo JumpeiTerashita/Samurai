@@ -92,23 +92,24 @@
   <ItemGroup>
     <Compile Include="Assets\Demigiant\DOTween\Examples\Basics.cs" />
     <Compile Include="Assets\Demigiant\DOTween\Examples\Sequences.cs" />
-    <Compile Include="Assets\Script\BGMManager.cs" />
-    <Compile Include="Assets\Script\CameraMove.cs" />
-    <Compile Include="Assets\Script\CheckPoint.cs" />
-    <Compile Include="Assets\Script\EnemyAttack.cs" />
-    <Compile Include="Assets\Script\EnemyBehavior.cs" />
-    <Compile Include="Assets\Script\EnemyManager.cs" />
-    <Compile Include="Assets\Script\FadeDisp.cs" />
-    <Compile Include="Assets\Script\GameObjectManager.cs" />
-    <Compile Include="Assets\Script\Heroine.cs" />
-    <Compile Include="Assets\Script\JoystickToEvents.cs" />
-    <Compile Include="Assets\Script\KilledNum.cs" />
-    <Compile Include="Assets\Script\Locomotion.cs" />
-    <Compile Include="Assets\Script\LocomotionPlayer.cs" />
-    <Compile Include="Assets\Script\PlayerAttack.cs" />
-    <Compile Include="Assets\Script\PlayerBehavior.cs" />
-    <Compile Include="Assets\Script\SEManager.cs" />
-    <Compile Include="Assets\Script\TitleScene.cs" />
+    <Compile Include="Assets\Scripts\AutoDestroy.cs" />
+    <Compile Include="Assets\Scripts\BGMManager.cs" />
+    <Compile Include="Assets\Scripts\CameraMove.cs" />
+    <Compile Include="Assets\Scripts\CheckPoint.cs" />
+    <Compile Include="Assets\Scripts\EnemyAttack.cs" />
+    <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
+    <Compile Include="Assets\Scripts\EnemyManager.cs" />
+    <Compile Include="Assets\Scripts\FadeDisp.cs" />
+    <Compile Include="Assets\Scripts\GameObjectManager.cs" />
+    <Compile Include="Assets\Scripts\Heroine.cs" />
+    <Compile Include="Assets\Scripts\JoystickToEvents.cs" />
+    <Compile Include="Assets\Scripts\KilledNum.cs" />
+    <Compile Include="Assets\Scripts\Locomotion.cs" />
+    <Compile Include="Assets\Scripts\LocomotionPlayer.cs" />
+    <Compile Include="Assets\Scripts\PlayerAttack.cs" />
+    <Compile Include="Assets\Scripts\PlayerBehavior.cs" />
+    <Compile Include="Assets\Scripts\SEManager.cs" />
+    <Compile Include="Assets\Scripts\TitleScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Demigiant\DOTween\DOTween.XML" />
