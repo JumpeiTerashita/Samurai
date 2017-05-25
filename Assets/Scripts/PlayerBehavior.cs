@@ -51,6 +51,9 @@ public class PlayerBehavior : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        //  Set Frame Rate
+        Application.targetFrameRate = 30;
+
         playerBody = GetComponent<BoxCollider>();
         animator = GetComponent<Animator>();
         state = animator.GetCurrentAnimatorStateInfo(0);

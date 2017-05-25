@@ -115,13 +115,6 @@ public class EnemyBehavior : MonoBehaviour
                 boxCol.enabled = false;
                 //      katanaDamaged();
             }
-
-
-
-
-
-
-
         }
 
     }
@@ -133,6 +126,7 @@ public class EnemyBehavior : MonoBehaviour
         if (!animator.GetBool("Death")&&!IsDead)
         {
             IsDead = true;
+            KatanaDisabled();
             animator.SetFloat("Speed", 0.0f);
             Debug.Log("Hit");
             //animator.SetBool("Attacking", false);
@@ -157,17 +151,6 @@ public class EnemyBehavior : MonoBehaviour
     {
         boxCol.enabled = false;
     }
-
-
-    //void OnCollisionEnter(Collision collider)
-    //{
-
-    //    if (collider.gameObject.tag == "Katana")
-    //    {
-    //        Debug.Log("Hit");
-    //        animator.SetTrigger("Death");
-    //    }
-    //}
 }
 
 
