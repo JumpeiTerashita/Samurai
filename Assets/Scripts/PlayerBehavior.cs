@@ -67,8 +67,11 @@ public class PlayerBehavior : MonoBehaviour
 
     void Update()
     {
-        if (!KilledNum.IsStarted) return;
-
+        if (!KilledNum.IsStarted)
+        {
+            locomotion.Do(0, direction * 180);
+            return;
+        }
         if (animator && Camera.main && !animator.GetBool("Death"))
         {
             if (IsCrisis && !MakeAura)
@@ -91,7 +94,7 @@ public class PlayerBehavior : MonoBehaviour
                 // Debug.Log(boxCol.enabled);
             }
 
-            if (Input.GetKeyDown(KeyCode.B) || Input.GetButtonDown("Guard"))
+            if ((Input.GetKeyDown(KeyCode.B) || Input.GetButtonDown("Guard")) && !animator.GetBool("Attacking"))
             {
                 Debug.Log("NowGuard");
                 SE.SEStart(1);
@@ -99,12 +102,6 @@ public class PlayerBehavior : MonoBehaviour
                 //Debug.Log(boxCol.enabled);
                 boxCol.size = new Vector3(1.0f, 0.13f, 1.3f);
                 animator.SetBool("Guard", true);
-                animator.SetBool("Attacking", false);
-                if (state.IsName("Locomotion.CounterAttack"))
-                {
-                    animator.SetBool("Guard", false);
-
-                }
             }
 
             if (Input.GetKeyUp(KeyCode.B) || Input.GetButtonUp("Guard"))
@@ -114,67 +111,42 @@ public class PlayerBehavior : MonoBehaviour
                 boxCol.size = new Vector3(0.3f, 0.13f, 1.3f);
                 animator.SetBool("Guard", false);
 
-            }
-
-            if (state.IsName("Locomotion.KnockBack"))
-            {
-                if (Input.GetKeyUp(KeyCode.B) || Input.GetButtonUp("Guard"))
+                if (state.IsName("Locomotion.KnockBack"))
                 {
-                    PlayerMutekiEnabled();
-                    Invoke("PlayerMutekiDisabled", 2f);
-                    animator.SetBool("Guard", false);
                     animator.SetTrigger("CounterAttack");
                     Instantiate(Flash, boxCol.transform.position, Quaternion.identity);
                     SE.SEStart(2);
+                    StartCoroutine(StartCounterAttack());
+
                 }
-
             }
 
-            if (state.IsName("Locomotion.CounterAttack"))
-            {
-                boxCol.enabled = true;
-                boxCol.size = new Vector3(0.3f, 0.13f, 1.3f);
-                animator.SetBool("Attacking", true);
-            }
+
+
+
 
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Attack"))
             {
                 if (state.IsName("Locomotion.Attack"))
                 {
                     Debug.Log("ComboAttacking");
-                    boxCol.enabled = true;
+
                     animator.SetBool("ComboAttack", true);
                     animator.SetBool("Attacking", true);
                     // Invoke("AttackSound", 0.7f);
                 }
                 else if (!state.IsName("Locomotion.ComboAttack"))
                 {
-                    Invoke("AttackSound", 0.5f);
-                    Invoke("AttackSound", 0.8f);
-                    Invoke("KatanaEnabled", 0.5f);
 
-                    Invoke("KatanaDisabled", 1.2f);
-                    animator.Play("Locomotion.Attack");
-                    animator.SetBool("Attacking", true);
+                    StartCoroutine(StartAttack());
                 }
-
             }
 
 
 
-            //if (state.IsName("Locomotion.Attack"))
-            //{
-            //    //Debug.Log("AttackingEnd");
-            //    animator.SetBool("Attacking", false);
-            //    capcol.enabled = false;
-            //}
 
-            if (state.IsName("Locomotion.ComboAttack"))
-            {
 
-                animator.SetBool("ComboAttack", false);
 
-            }
         }
         else
         {
@@ -186,30 +158,17 @@ public class PlayerBehavior : MonoBehaviour
         }
     }
 
-    void PlayerMutekiEnabled()
+    void PlayerInvicible(bool _Is)
     {
-        playerBody.enabled = false;
+        playerBody.enabled = !_Is;
     }
 
-    void PlayerMutekiDisabled()
+    void KatanaCollider(bool _Is)
     {
-        Debug.Log("Muteki Disabled");
-        playerBody.enabled = true;
+        boxCol.enabled = _Is;
     }
 
-    void KatanaEnabled()
-    {
-        boxCol.enabled = true;
-    }
 
-    void KatanaDisabled()
-    {
-        if (!animator.GetBool("ComboAttack") && !state.IsName("Locomotion.ComboAttack"))
-        {
-            boxCol.enabled = false;
-        }
-
-    }
 
     void AttackSound()
     {
@@ -244,11 +203,66 @@ public class PlayerBehavior : MonoBehaviour
         animator.Play("Death");
         Debug.Log("Player Killed");
         GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
-
+        KatanaCollider(false);
         Destroy(blood, 0.5f);
         StartCoroutine(FadeDisp.FadeOut());
     }
 
+    IEnumerator StartAttack()
+    {
+        animator.SetBool("Attacking", true);
+        animator.Play("Locomotion.Attack");
+        yield return new WaitForSeconds(0.2f);
+        KatanaCollider(true);
+        yield return new WaitForSeconds(0.3f);
+        AttackSound();
+        yield return new WaitForSeconds(0.3f);
+        AttackSound();
+        yield return new WaitForSeconds(0.2f);
+        KatanaCollider(false);
 
+        if (animator.GetBool("ComboAttack"))
+        {
+            yield return new WaitForSeconds(0.3f);
+            KatanaCollider(true);
+            AttackSound();
+            yield return new WaitForSeconds(0.1f);
+            KatanaCollider(false);
+            yield return new WaitForSeconds(0.4f);
+            animator.SetBool("ComboAttack", false);
+            animator.SetBool("Attacking", false);
+            yield break;
+        }
+        else
+        {
+            animator.SetBool("ComboAttack", false);
+            animator.SetBool("Attacking", false);
+            yield break;
+        }
+
+    }
+
+    IEnumerator StartCounterAttack()
+    {
+        PlayerInvicible(true);
+        yield return new WaitForSeconds(0.3f);
+        KatanaCollider(true);
+        yield return new WaitForSeconds(0.35f);
+        AttackSound();
+        yield return new WaitForSeconds(0.22f);
+        AttackSound();
+        yield return new WaitForSeconds(0.18f);
+        KatanaCollider(false);
+        PlayerInvicible(false);
+        yield return new WaitForSeconds(0.35f);
+        yield break;
+    }
+
+    bool IsAnimFinished()
+    {
+        var AnimState = animator.GetCurrentAnimatorStateInfo(1);
+        if (AnimState.normalizedTime <= 1.0f) return false;
+        return true;
+    }
 
 }

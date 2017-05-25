@@ -96,6 +96,7 @@
     <Compile Include="Assets\Scripts\BGMManager.cs" />
     <Compile Include="Assets\Scripts\CameraMove.cs" />
     <Compile Include="Assets\Scripts\CheckPoint.cs" />
+    <Compile Include="Assets\Scripts\DeathBall.cs" />
     <Compile Include="Assets\Scripts\EnemyAttack.cs" />
     <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
     <Compile Include="Assets\Scripts\EnemyManager.cs" />
@@ -105,7 +106,7 @@
     <Compile Include="Assets\Scripts\JoystickToEvents.cs" />
     <Compile Include="Assets\Scripts\KilledNum.cs" />
     <Compile Include="Assets\Scripts\Locomotion.cs" />
-    <Compile Include="Assets\Scripts\LocomotionPlayer.cs" />
+    <Compile Include="Assets\Scripts\Mapper.cs" />
     <Compile Include="Assets\Scripts\PlayerAttack.cs" />
     <Compile Include="Assets\Scripts\PlayerBehavior.cs" />
     <Compile Include="Assets\Scripts\SEManager.cs" />
