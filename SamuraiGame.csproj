@@ -109,6 +109,7 @@
     <Compile Include="Assets\Scripts\Mapper.cs" />
     <Compile Include="Assets\Scripts\PlayerAttack.cs" />
     <Compile Include="Assets\Scripts\PlayerBehavior.cs" />
+    <Compile Include="Assets\Scripts\PostEffect.cs" />
     <Compile Include="Assets\Scripts\SEManager.cs" />
     <Compile Include="Assets\Scripts\TitleScene.cs" />
   </ItemGroup>
@@ -116,6 +117,7 @@
     <None Include="Assets\Demigiant\DOTween\DOTween.XML" />
     <None Include="Assets\Demigiant\DOTween\Editor\DOTweenEditor.XML" />
     <None Include="Assets\Demigiant\DOTween\readme.txt" />
+    <None Include="Assets\Materials\MonoTone.shader" />
     <None Include="Assets\NatureStarterKit2\info.txt" />
     <None Include="Assets\Resources\Models\MaidSurfaceShader.shader" />
     <None Include="Assets\Resources\Models\MaidSurfaceShader_Brow.shader" />

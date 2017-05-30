@@ -19,6 +19,7 @@ public class PlayerBehavior : MonoBehaviour
     float direction = 0;
     Locomotion locomotion = null;
     static public bool IsCrisis;
+    static public bool IsSkillEnable;
 
     [SerializeField]
     GameObject CrisisAura;
@@ -45,15 +46,21 @@ public class PlayerBehavior : MonoBehaviour
 
     Canvas DispUI = null;
 
+    GameObject CameraObject;
     GameObject SoundManager;
     SEManager SE;
     BGMManager BGM;
+
+    float DefaltTimeScale = 1.0f;
     // Use this for initialization
     void Start()
     {
+        CameraObject = GameObject.Find("MainCamera");
+        CameraObject.GetComponent<PostEffect>().enabled = false;
+        IsSkillEnable = false;
         //  Set Frame Rate
         Application.targetFrameRate = 30;
-
+        Time.timeScale = DefaltTimeScale;
         playerBody = GetComponent<BoxCollider>();
         animator = GetComponent<Animator>();
         state = animator.GetCurrentAnimatorStateInfo(0);
@@ -92,6 +99,22 @@ public class PlayerBehavior : MonoBehaviour
                 animator.SetBool("Attacking", false);
                 boxCol.enabled = false;
                 // Debug.Log(boxCol.enabled);
+            }
+
+            if (Input.GetButtonDown("Skill"))
+            {
+                Debug.Log("Skill");
+                Time.timeScale = 0.5f;
+                IsSkillEnable = true;
+                CameraObject.GetComponent<PostEffect>().enabled = true;
+            }
+
+            if (Input.GetButtonUp("Skill"))
+            {
+                Debug.Log("Skill Over");
+                Time.timeScale = DefaltTimeScale;
+                IsSkillEnable = false;
+                CameraObject.GetComponent<PostEffect>().enabled = false;
             }
 
             if ((Input.GetKeyDown(KeyCode.B) || Input.GetButtonDown("Guard")) && !animator.GetBool("Attacking"))
@@ -154,6 +177,9 @@ public class PlayerBehavior : MonoBehaviour
             {
                 DispUI = DeathUI;
                 Instantiate(DispUI);
+                Time.timeScale = DefaltTimeScale;
+                IsSkillEnable = false;
+                CameraObject.GetComponent<PostEffect>().enabled = false;
             }
         }
     }
