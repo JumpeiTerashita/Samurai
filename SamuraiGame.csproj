@@ -107,6 +107,7 @@
     <Compile Include="Assets\Scripts\KilledNum.cs" />
     <Compile Include="Assets\Scripts\Locomotion.cs" />
     <Compile Include="Assets\Scripts\Mapper.cs" />
+    <Compile Include="Assets\Scripts\MeikyoGauge.cs" />
     <Compile Include="Assets\Scripts\PlayerAttack.cs" />
     <Compile Include="Assets\Scripts\PlayerBehavior.cs" />
     <Compile Include="Assets\Scripts\PostEffect.cs" />

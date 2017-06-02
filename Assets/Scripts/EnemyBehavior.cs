@@ -74,7 +74,7 @@ public class EnemyBehavior : MonoBehaviour
                     {
                         PlayerBehavior.IsCrisis = true;
                         Debug.Log("Pinch!");
-                        if (false)//Random.Range(0.0f, 1.0f) >= 0.5f)
+                        if (Random.Range(0.0f, 1.0f) >= 0.5f)
                         {
                             animator.Play("Attack");
                             animator.SetBool("Attack", true);
@@ -159,6 +159,7 @@ public class EnemyBehavior : MonoBehaviour
             animator.SetBool("Death", true);
             animator.Play("Death");
             KilledNum.KillCounter++;
+            MeikyoGauge.MeikyoValue++;
             GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
             Destroy(blood, 0.5f);
             Destroy(this.gameObject, 3.0f);
