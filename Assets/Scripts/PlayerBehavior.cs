@@ -52,8 +52,8 @@ public class PlayerBehavior : MonoBehaviour
     BGMManager BGM;
 
     float DefaltTimeScale = 1.0f;
-    
-    
+
+
     // Use this for initialization
     void Start()
     {
@@ -97,27 +97,22 @@ public class PlayerBehavior : MonoBehaviour
             JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
             locomotion.Do(speed * 6.0f, direction * 180);
 
-            state = Animator.GetCurrentAnimatorStateInfo(0);
+           
 
-            if (state.IsName("Locomotion.Idle") && !Animator.GetBool("Guard"))
-            {
-                Animator.SetBool("Attacking", false);
-                boxCol.enabled = false;
-                // Debug.Log(boxCol.enabled);
-            }
 
-            if (Input.GetButtonDown("Skill")&&MeikyoGauge.MeikyoValue>0)
+
+            if (Input.GetButtonDown("Skill") && MeikyoGauge.MeikyoValue > 0)
             {
-               
+
                 Debug.Log("Skill");
                 Time.timeScale = 0.5f;
                 IsSkillEnable = true;
                 CameraObject.GetComponent<PostEffect>().enabled = true;
             }
 
-           
 
-            if (Input.GetButtonUp("Skill")||MeikyoGauge.MeikyoValue<=0)
+
+            if (IsSkillEnable && (Input.GetButtonUp("Skill") || MeikyoGauge.MeikyoValue <= 0))
             {
                 Debug.Log("Skill Over");
                 Time.timeScale = DefaltTimeScale;
@@ -126,12 +121,7 @@ public class PlayerBehavior : MonoBehaviour
             }
 
             if ((Input.GetKeyDown(KeyCode.B) || Input.GetButtonDown("Guard")) && !Animator.GetBool("Attacking"))
-            {
-                Debug.Log("NowGuard");
-                SE.SEStart(1);
-                boxCol.enabled = true;
-                //Debug.Log(boxCol.enabled);
-                boxCol.size = new Vector3(1.0f, 0.13f, 1.3f);
+            { 
                 Animator.SetBool("Guard", true);
             }
 
@@ -141,7 +131,7 @@ public class PlayerBehavior : MonoBehaviour
                 boxCol.enabled = false;
                 boxCol.size = new Vector3(0.3f, 0.13f, 1.3f);
                 Animator.SetBool("Guard", false);
-
+                state = Animator.GetCurrentAnimatorStateInfo(0);
                 if (state.IsName("Locomotion.KnockBack"))
                 {
                     Animator.SetTrigger("CounterAttack");
@@ -158,25 +148,9 @@ public class PlayerBehavior : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Attack"))
             {
-                if (state.IsName("Locomotion.Attack"))
-                {
-                    Debug.Log("ComboAttacking");
-
-                    Animator.SetBool("ComboAttack", true);
-                    Animator.SetBool("Attacking", true);
-                    // Invoke("AttackSound", 0.7f);
-                }
-                else if (!state.IsName("Locomotion.ComboAttack"))
-                {
-
-                    StartCoroutine(StartAttack());
-                }
+                if (Animator.GetBool("Attacking")) Animator.SetBool("ComboAttack", true);
+                else Animator.Play("Attack");
             }
-
-
-
-
-
 
         }
         else
@@ -227,15 +201,16 @@ public class PlayerBehavior : MonoBehaviour
 
     public void EnemyKatanaHit()
     {
+        // TODO EnemyKatanaHit Don't Invoke
         SE.SEStart(6);
         Animator.SetFloat("Speed", 0.0f);
-        Debug.Log("Hit");
+        // Debug.Log("Hit");
         //animator.SetBool("Attacking", false);
         SE.SEStart(4);
         Invoke("DownSound", 0.6f);
         Animator.SetBool("Death", true);
         Animator.Play("Death");
-        Debug.Log("Player Killed");
+        // Debug.Log("Player Killed");
         GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
         KatanaCollider(false);
         Destroy(blood, 0.5f);
@@ -245,7 +220,6 @@ public class PlayerBehavior : MonoBehaviour
     IEnumerator StartAttack()
     {
         Animator.SetBool("Attacking", true);
-        Animator.Play("Locomotion.Attack");
         yield return new WaitForSeconds(0.2f);
         KatanaCollider(true);
         yield return new WaitForSeconds(0.3f);
@@ -303,8 +277,30 @@ public class PlayerBehavior : MonoBehaviour
     {
         if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack"))
         {
-            Debug.Log("Idle End");
+            Debug.Log("Attack Start");
+            StartCoroutine(StartAttack());
         }
-        
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("ComboAttack"))
+        {
+            Debug.Log("Combo Attack Start");
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Idle"))
+        {
+            Debug.Log("Idle Start");
+            Animator.SetBool("Attacking", false);
+            boxCol.enabled = false;
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
+        {
+            Debug.Log("Death Start");
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Guard"))
+        {
+            Debug.Log("Guard Start");
+            SE.SEStart(1);
+            boxCol.enabled = true;
+            //Debug.Log(boxCol.enabled);
+            boxCol.size = new Vector3(1.0f, 0.13f, 1.3f);
+        }
     }
 }

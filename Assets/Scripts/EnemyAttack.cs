@@ -35,7 +35,7 @@ public class EnemyAttack : MonoBehaviour
         {
             if (!IsGuard_Player && !IsCounterAttacking && col.tag == "Hero")
             {
-                Debug.Log("プレイヤーに当たった");
+               // Debug.Log("プレイヤーに当たった");
                 col.GetComponent<PlayerBehavior>().EnemyKatanaHit();
                 CameraMove.ShakeCamera();
             }

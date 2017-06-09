@@ -48,7 +48,7 @@ public class CameraMove : MonoBehaviour
 
     static public void ShakeCamera()
     {
-        Debug.Log("Shake!");
+       // Debug.Log("Shake!");
         Camera.transform.DOShakePosition(0.1f, 0.5f, 20);
     }
 

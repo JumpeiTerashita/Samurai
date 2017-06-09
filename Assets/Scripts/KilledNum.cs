@@ -61,13 +61,13 @@ public class KilledNum : MonoBehaviour
                 if (KillCountCopy / 10 > 0)
                 {
                     DispBox[i] = KillCountCopy % 10;
-                    Debug.Log("DispBox[" + i + "] =" + DispBox[i]);
+                    //Debug.Log("DispBox[" + i + "] =" + DispBox[i]);
                     KillCountCopy /= 10;
                 }
                 else
                 {
-                    Debug.Log(DispBox[i]);
-                    Debug.Log("DispBox[" + i + "] =" + DispBox[i]);
+                   // Debug.Log(DispBox[i]);
+                  //  Debug.Log("DispBox[" + i + "] =" + DispBox[i]);
                     DispBox[i] = KillCountCopy;
                     KillCountCopy = 0;
                 }

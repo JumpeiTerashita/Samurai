@@ -45,7 +45,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (!IsGuard && col.tag == "Enemy")
         {
-            Debug.Log("敵に当たった");
+          //  Debug.Log("敵に当たった");
             SE.SEStart(7);
             col.GetComponent<EnemyBehavior>().PlayerKatanaHit();
         }

@@ -73,7 +73,7 @@ public class EnemyBehavior : MonoBehaviour
                     if (!animator.GetBool("Attack"))
                     {
                         PlayerBehavior.IsCrisis = true;
-                        Debug.Log("Pinch!");
+                       // Debug.Log("Pinch!");
                         if (Random.Range(0.0f, 1.0f) >= 0.5f)
                         {
                             animator.Play("Attack");
@@ -154,7 +154,7 @@ public class EnemyBehavior : MonoBehaviour
             IsDead = true;
             KatanaCollider(false);
             animator.SetFloat("Speed", 0.0f);
-            Debug.Log("Hit");
+           // Debug.Log("Hit");
             //animator.SetBool("Attacking", false);
             animator.SetBool("Death", true);
             animator.Play("Death");
