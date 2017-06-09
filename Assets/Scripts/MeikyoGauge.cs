@@ -21,8 +21,17 @@ public class MeikyoGauge : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        Meikyo.enabled = KilledNum.IsStarted;
+        MeikyoMask.enabled = KilledNum.IsStarted;
         MeikyoValue = Mathf.Clamp(MeikyoValue,0,MeikyoMax);
         Meikyo.color = new Color(MeikyoValue/5, MeikyoValue/5, MeikyoValue/5, 1);
+
+        if (PlayerBehavior.IsSkillEnable && MeikyoValue > 0)
+        {
+            MeikyoValue-= 0.025f;
+            if (MeikyoValue <= 0) return;
+           
+        }
     }
 
     

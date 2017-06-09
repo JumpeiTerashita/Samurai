@@ -112,6 +112,7 @@
     <Compile Include="Assets\Scripts\PlayerBehavior.cs" />
     <Compile Include="Assets\Scripts\PostEffect.cs" />
     <Compile Include="Assets\Scripts\SEManager.cs" />
+    <Compile Include="Assets\Scripts\StateMachineObserver.cs" />
     <Compile Include="Assets\Scripts\TitleScene.cs" />
   </ItemGroup>
   <ItemGroup>
