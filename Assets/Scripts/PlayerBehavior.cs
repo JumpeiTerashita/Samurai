@@ -53,10 +53,12 @@ public class PlayerBehavior : MonoBehaviour
 
     float DefaltTimeScale = 1.0f;
 
+    static public float StopSec;
 
     // Use this for initialization
     void Start()
     {
+        StopSec = 0;
         CameraObject = GameObject.Find("MainCamera");
         CameraObject.GetComponent<PostEffect>().enabled = false;
         IsSkillEnable = false;
@@ -79,6 +81,7 @@ public class PlayerBehavior : MonoBehaviour
 
     void Update()
     {
+        
         if (!KilledNum.IsStarted)
         {
             locomotion.Do(0, direction * 180);
@@ -97,23 +100,30 @@ public class PlayerBehavior : MonoBehaviour
             JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
             locomotion.Do(speed * 6.0f, direction * 180);
 
-           
+
 
 
 
             if (Input.GetButtonDown("Skill") && MeikyoGauge.MeikyoValue > 0)
             {
-
+                Animator.speed = 2;
+                StopSec = 0;
                 Debug.Log("Skill");
                 Time.timeScale = 0.5f;
                 IsSkillEnable = true;
                 CameraObject.GetComponent<PostEffect>().enabled = true;
             }
 
-
+            if (Input.GetButton("Skill") && MeikyoGauge.MeikyoValue > 0)
+            {
+                StopSec += Time.deltaTime;
+                Debug.Log(StopSec);
+            }
 
             if (IsSkillEnable && (Input.GetButtonUp("Skill") || MeikyoGauge.MeikyoValue <= 0))
             {
+                Animator.speed = 1;
+                StopSec = 0;
                 Debug.Log("Skill Over");
                 Time.timeScale = DefaltTimeScale;
                 IsSkillEnable = false;
@@ -121,7 +131,7 @@ public class PlayerBehavior : MonoBehaviour
             }
 
             if ((Input.GetKeyDown(KeyCode.B) || Input.GetButtonDown("Guard")) && !Animator.GetBool("Attacking"))
-            { 
+            {
                 Animator.SetBool("Guard", true);
             }
 
@@ -201,7 +211,6 @@ public class PlayerBehavior : MonoBehaviour
 
     public void EnemyKatanaHit()
     {
-        // TODO EnemyKatanaHit Don't Invoke
         SE.SEStart(6);
         Animator.SetFloat("Speed", 0.0f);
         // Debug.Log("Hit");

@@ -33,6 +33,8 @@ public class CameraMove : MonoBehaviour
 
         transform.position = Player.transform.position;
 
+       
+
         // float Camerahigh = transform.position.y + Input.GetAxisRaw("Vertical2");
 
         //transform.position = new Vector3(transform.position.x, Camerahigh, transform.position.z);

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using DG.Tweening;
 
 public class FadeDisp : MonoBehaviour {
+    [SerializeField]
     GameObject Black;
     static Image image;
 
@@ -13,7 +14,7 @@ public class FadeDisp : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        Black = GameObject.Find("Black");
+        
         image = Black.GetComponent<Image>();
         StartCoroutine(FadeIn());
     }

@@ -6,6 +6,8 @@ public class EnemyAttack : MonoBehaviour
 {
     GameObject Player;
 
+  
+
     GameObject SoundManager;
     SEManager SE;
     bool oneHit;
@@ -13,6 +15,7 @@ public class EnemyAttack : MonoBehaviour
     [SerializeField]
     GameObject Enemy;
 
+    Animator EnemyAnim;
     
     // Use this for initialization
     void Start()
@@ -20,13 +23,16 @@ public class EnemyAttack : MonoBehaviour
         Player = GameObject.Find("Player");
         SoundManager = GameObject.Find("SoundManager");
         SE = SoundManager.GetComponentInChildren<SEManager>();
-       
+        EnemyAnim = GameObjectManager.getAnimator(Enemy);
         oneHit = false;
     }
 
 
     void OnTriggerEnter(Collider col)
     {
+
+        if (!EnemyAnim.GetBool("Attack")) { Debug.Log(" Unknown HIT "); return; }
+
         bool IsDeath_Player = GameObjectManager.getAnimator(Player).GetBool("Death");
         bool IsGuard_Player = GameObjectManager.getAnimator(Player).GetBool("Guard");
         bool IsCounterAttacking = GameObjectManager.getAnimatorStateInfo(Player).IsName("CounterAttack");

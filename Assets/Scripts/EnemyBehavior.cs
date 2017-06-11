@@ -19,7 +19,7 @@ public class EnemyBehavior : MonoBehaviour
     Locomotion locomotion = null;
     AnimatorStateInfo state;
 
-    
+    CharacterController CharaCon;
 
     [SerializeField]
     BoxCollider boxCol;
@@ -30,6 +30,9 @@ public class EnemyBehavior : MonoBehaviour
     bool IsDead;
 
     SEManager SE;
+
+    
+
     // Use this for initialization
     void Start()
     {
@@ -41,11 +44,16 @@ public class EnemyBehavior : MonoBehaviour
         boxCol.enabled = false;
         GameObject SoundManager = GameObject.Find("SoundManager");
         SE = SoundManager.GetComponentInChildren<SEManager>();
+        CharaCon = GetComponent<CharacterController>();
+
+        var smObserver = animator.GetBehaviour<StateMachineObserver>();
+        smObserver.onStateExit = onStateExit;
         //animator.Play("Locomotion.Born");
     }
 
     void Update()
     {
+        Vector3 distance = Player.transform.position - transform.position;
         if (IsDead||!KilledNum.IsStarted) return;
 
         if (animator)
@@ -59,9 +67,9 @@ public class EnemyBehavior : MonoBehaviour
                     animator.SetBool("Attack", false);
                     animator.SetFloat("Speed", 1.0f);
                 }
-                transform.LookAt(Player.transform.position);
+                //transform.LookAt(Player.transform.position);
 
-                Vector3 distance = Player.transform.position - transform.position;
+                
                 
                 //JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
                 //locomotion.Do(speed * 6, direction * 180);
@@ -79,14 +87,14 @@ public class EnemyBehavior : MonoBehaviour
                             animator.Play("Attack");
                             animator.SetBool("Attack", true);
                             animator.SetFloat("Speed", 0.0f);
-                            StartCoroutine(StartAttack());
+                      
                         }
                         else
                         {
                             animator.Play("Attack2");
                             animator.SetBool("Attack", true);
                             animator.SetFloat("Speed", 0);
-                            StartCoroutine(StartAttack2());
+                           
                         }
                         
                     }
@@ -98,7 +106,10 @@ public class EnemyBehavior : MonoBehaviour
                     {
                         //Debug.Log("Move!");
                         animator.SetBool("Attack", false);
-                        transform.position = (transform.position + (distance.normalized * 3.0f * Time.deltaTime));
+                        // transform.position = (transform.position + (distance.normalized * 3.0f * Time.deltaTime));
+                        transform.LookAt(Player.transform.position);
+                       CharaCon.Move(distance.normalized*Time.deltaTime*3.0f);
+                       
                     }
                     
                 }
@@ -168,7 +179,35 @@ public class EnemyBehavior : MonoBehaviour
 
     }
 
-    
+    void onStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack"))
+        {
+           // Debug.Log("Enemy : Attack Start");
+            KatanaCollider(false);
+            StartCoroutine(StartAttack());
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack2"))
+        {
+            //Debug.Log("Enemy : Attack2j Start");
+            KatanaCollider(false);
+            StartCoroutine(StartAttack2());
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Idle"))
+        {
+          //  Debug.Log("Enemy : Idle Start");
+            animator.SetBool("Attack", false);
+            KatanaCollider(false);
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
+        {
+         //   Debug.Log("Enemy : Death Start");
+            animator.SetBool("Attack", false);
+            KatanaCollider(false);
+        }
+       
+    }
+
 }
 
 
