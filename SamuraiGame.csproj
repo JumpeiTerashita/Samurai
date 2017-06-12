@@ -100,6 +100,7 @@
     <Compile Include="Assets\Scripts\EnemyAttack.cs" />
     <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
     <Compile Include="Assets\Scripts\EnemyManager.cs" />
+    <Compile Include="Assets\Scripts\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\FadeDisp.cs" />
     <Compile Include="Assets\Scripts\GameObjectManager.cs" />
     <Compile Include="Assets\Scripts\Heroine.cs" />

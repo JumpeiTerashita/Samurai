@@ -208,6 +208,16 @@ public class EnemyBehavior : MonoBehaviour
        
     }
 
+     void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Enemy")
+        {
+            Vector3 Distance = transform.position - collision.transform.position;
+
+            transform.position = new Vector3(transform.position.x+Distance.x*0.5f,0, transform.position.z + Distance.z * 0.5f);
+        }   
+    }
+
 }
 
 
