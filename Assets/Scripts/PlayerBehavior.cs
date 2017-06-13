@@ -3,6 +3,7 @@
 /// </summary>
 
 using UnityEngine;
+using UnityEngine.Video;
 using System;
 using System.Collections;
 using UnityEngine.SceneManagement;
@@ -55,9 +56,13 @@ public class PlayerBehavior : MonoBehaviour
 
     static public float StopSec;
 
+
+    VideoPlayer video;
+
     // Use this for initialization
     void Start()
     {
+        video = GetComponent<VideoPlayer>();
         StopSec = 0;
         CameraObject = GameObject.Find("MainCamera");
         CameraObject.GetComponent<PostEffect>().enabled = false;
@@ -104,23 +109,32 @@ public class PlayerBehavior : MonoBehaviour
 
 
 
-            if (Input.GetButtonDown("Skill") && MeikyoGauge.MeikyoValue > 0)
+            if (Input.GetButtonDown("Skill") )
             {
-                Animator.speed = 2;
-                StopSec = 0;
-                Debug.Log("Skill");
-                Time.timeScale = 0.5f;
-                IsSkillEnable = true;
-                CameraObject.GetComponent<PostEffect>().enabled = true;
+                if (!IsSkillEnable&& MeikyoGauge.MeikyoValue >= 5)
+                {
+                    video.Play();
+                    Animator.speed = 2;
+                    StopSec = 0;
+                    Debug.Log("Skill");
+                    Time.timeScale = 0.5f;
+                    IsSkillEnable = true;
+                    CameraObject.GetComponent<PostEffect>().enabled = true;
+                }
+               else if(IsSkillEnable)
+                {
+                    Animator.speed = 1;
+                    StopSec = 0;
+                    Debug.Log("Skill Over");
+                    Time.timeScale = DefaltTimeScale;
+                    IsSkillEnable = false;
+                    CameraObject.GetComponent<PostEffect>().enabled = false;
+                }
             }
 
-            if (Input.GetButton("Skill") && MeikyoGauge.MeikyoValue > 0)
-            {
-                StopSec += Time.deltaTime;
-                Debug.Log(StopSec);
-            }
-
-            if (IsSkillEnable && (Input.GetButtonUp("Skill") || MeikyoGauge.MeikyoValue <= 0))
+            if (IsSkillEnable && MeikyoGauge.MeikyoValue > 0) StopSec += Time.deltaTime;
+            
+            if (IsSkillEnable && MeikyoGauge.MeikyoValue <= 0)
             {
                 Animator.speed = 1;
                 StopSec = 0;

@@ -21,6 +21,7 @@ public class Heroine : MonoBehaviour {
             Canvas DispUI = Instantiate(ClearUI);
             DispUI.GetComponentInChildren<Text>().text = "生還";
             KilledNum.IsStarted = false;
+            Time.timeScale = 1.0f;
             StartCoroutine(FadeDisp.FadeOut());
         }
     }
