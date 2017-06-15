@@ -59,9 +59,12 @@ public class PlayerBehavior : MonoBehaviour
 
     VideoPlayer video;
 
+    bool IsIdle;
+
     // Use this for initialization
     void Start()
     {
+        IsIdle = false;
         video = GetComponent<VideoPlayer>();
         StopSec = 0;
         CameraObject = GameObject.Find("MainCamera");
@@ -105,11 +108,14 @@ public class PlayerBehavior : MonoBehaviour
             JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
             locomotion.Do(speed * 6.0f, direction * 180);
 
+            if (IsIdle&&!IsSkillEnable)
+            {
+                MeikyoGauge.MeikyoValue += 0.05f;
+            }
 
 
 
-
-            if (Input.GetButtonDown("Skill") )
+                if (Input.GetButtonDown("Skill") )
             {
                 if (!IsSkillEnable&& MeikyoGauge.MeikyoValue >= 5)
                 {
@@ -298,6 +304,8 @@ public class PlayerBehavior : MonoBehaviour
 
     void onStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        IsIdle = false;
+
         if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack"))
         {
             Debug.Log("Attack Start");
@@ -312,6 +320,7 @@ public class PlayerBehavior : MonoBehaviour
             Debug.Log("Idle Start");
             Animator.SetBool("Attacking", false);
             boxCol.enabled = false;
+            IsIdle = true;
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
         {

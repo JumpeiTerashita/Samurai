@@ -170,7 +170,7 @@ public class EnemyBehavior : MonoBehaviour
             animator.SetBool("Death", true);
             animator.Play("Death");
             KilledNum.KillCounter++;
-            MeikyoGauge.MeikyoValue++;
+            MeikyoGauge.MeikyoValue+=0.5f;
             GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
             Destroy(blood, 0.5f);
             Destroy(this.gameObject, 3.0f);
