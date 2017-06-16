@@ -110,14 +110,14 @@ public class PlayerBehavior : MonoBehaviour
 
             if (IsIdle&&!IsSkillEnable)
             {
-                MeikyoGauge.MeikyoValue += 0.05f;
+               SkillManager.SkillPoint += 0.05f;
             }
 
 
 
                 if (Input.GetButtonDown("Skill") )
             {
-                if (!IsSkillEnable&& MeikyoGauge.MeikyoValue >= 5)
+                if (!IsSkillEnable&& SkillManager.SkillPoint >= 5)
                 {
                     video.Play();
                     Animator.speed = 2;
@@ -138,9 +138,9 @@ public class PlayerBehavior : MonoBehaviour
                 }
             }
 
-            if (IsSkillEnable && MeikyoGauge.MeikyoValue > 0) StopSec += Time.deltaTime;
+            if (IsSkillEnable && SkillManager.SkillPoint > 0) StopSec += Time.deltaTime;
             
-            if (IsSkillEnable && MeikyoGauge.MeikyoValue <= 0)
+            if (IsSkillEnable && SkillManager.SkillPoint <= 0)
             {
                 Animator.speed = 1;
                 StopSec = 0;

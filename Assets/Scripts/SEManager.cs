@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SEManager : MonoBehaviour {
+public class SEManager : SingleTon<SEManager> {
     [SerializeField]
     AudioClip[] _runSE = new AudioClip[20];
 

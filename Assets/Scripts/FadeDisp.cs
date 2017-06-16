@@ -10,21 +10,10 @@ public class FadeDisp : MonoBehaviour {
     GameObject Black;
     static Image image;
 
-    
-
     // Use this for initialization
     void Start () {
-        
         image = Black.GetComponent<Image>();
         StartCoroutine(FadeIn());
-    }
-
-    void Update()
-    {
-        //Debug.Log(image.color);
-        
-
-
     }
 
     IEnumerator FadeIn()
