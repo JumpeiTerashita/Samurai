@@ -48,7 +48,7 @@ public class PlayerBehavior : MonoBehaviour
     Canvas DispUI = null;
 
     GameObject CameraObject;
-    GameObject SoundManager;
+    
     SEManager SE;
     BGMManager BGM;
 
@@ -60,10 +60,12 @@ public class PlayerBehavior : MonoBehaviour
     VideoPlayer video;
 
     bool IsIdle;
+    bool IsAttaceCorutineRunning;
 
     // Use this for initialization
     void Start()
     {
+        IsAttaceCorutineRunning = false;
         IsIdle = false;
         video = GetComponent<VideoPlayer>();
         StopSec = 0;
@@ -79,8 +81,7 @@ public class PlayerBehavior : MonoBehaviour
         //capcol = GetComponentInChildren<CapsuleCollider>();
         boxCol.enabled = false;
         locomotion = new Locomotion(Animator);
-        GameObject SoundManager = GameObject.Find("SoundManager");
-        SE = SoundManager.GetComponentInChildren<SEManager>();
+        SE = SEManager.Instance.GetComponent<SEManager>();
         IsCrisis = false;
 
         var smObserver = Animator.GetBehaviour<StateMachineObserver>();
@@ -119,6 +120,7 @@ public class PlayerBehavior : MonoBehaviour
             {
                 if (!IsSkillEnable&& SkillManager.SkillPoint >= 5)
                 {
+                    SE.SEStart(9);
                     video.Play();
                     Animator.speed = 2;
                     StopSec = 0;
@@ -248,6 +250,8 @@ public class PlayerBehavior : MonoBehaviour
 
     IEnumerator StartAttack()
     {
+        if (IsAttaceCorutineRunning) yield break;
+        IsAttaceCorutineRunning = true;
         Animator.SetBool("Attacking", true);
         yield return new WaitForSeconds(0.2f);
         KatanaCollider(true);
@@ -260,20 +264,22 @@ public class PlayerBehavior : MonoBehaviour
 
         if (Animator.GetBool("ComboAttack"))
         {
+            Animator.SetBool("ComboAttack", false);
             yield return new WaitForSeconds(0.3f);
             KatanaCollider(true);
             AttackSound();
             yield return new WaitForSeconds(0.1f);
             KatanaCollider(false);
             yield return new WaitForSeconds(0.4f);
-            Animator.SetBool("ComboAttack", false);
             Animator.SetBool("Attacking", false);
+            IsAttaceCorutineRunning = false;
             yield break;
         }
         else
         {
             Animator.SetBool("ComboAttack", false);
             Animator.SetBool("Attacking", false);
+            IsAttaceCorutineRunning = false;
             yield break;
         }
 

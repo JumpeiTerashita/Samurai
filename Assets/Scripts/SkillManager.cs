@@ -45,7 +45,7 @@ public class SkillManager : MonoBehaviour
             StartCoroutine(Meikyo_Enshutsu(0f));
             StartCoroutine(Meikyo_Enshutsu(0.15f));
             StartCoroutine(Meikyo_Enshutsu(0.3f));
-
+            SEManager.Instance.SEStart(10);        
             IsSkillEnable = true;
         }
         else if (SkillPoint < 5) IsSkillEnable = false;
