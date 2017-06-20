@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// GameObjectの持つAnimator,AnimatorStateInfo ゲッター
+/// </summary>
 public class GameObjectManager {
+
+    //  TODO    GameObjectManager   必要か？
 
     static public Animator getAnimator(GameObject _Target)
     {

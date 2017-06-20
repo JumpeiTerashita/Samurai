@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Singletonパターン（MonoBehavior継承）
+/// </summary>
 public abstract class SingleTon<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
@@ -26,8 +29,7 @@ public abstract class SingleTon<T> : MonoBehaviour where T : MonoBehaviour
 
     virtual protected void Awake()
     {
-        // 他のGameObjectにアタッチされているか調べる.
-        // アタッチされている場合は破棄する.
+        // 他のGameObjectにもアタッチされていたら破棄
         if (this != Instance)
         {
             Destroy(this);
@@ -39,8 +41,6 @@ public abstract class SingleTon<T> : MonoBehaviour where T : MonoBehaviour
             return;
         }
 
-        // なんとかManager的なSceneを跨いでこのGameObjectを有効にしたい場合は
-        // ↓コメントアウト外してください.
       //  DontDestroyOnLoad(this.gameObject);
     }
 

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 指定ポイント通過時   姫の周りから敵沸かせる
+/// </summary>
 public class CheckPoint : MonoBehaviour {
 
     GameObject enemyManageObj;

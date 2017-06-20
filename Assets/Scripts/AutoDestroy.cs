@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AutoDestroy : MonoBehaviour {
 
+/// <summary>
+/// アタッチされたGameObjectは自壊する。
+/// </summary>
+public class AutoDestroy : MonoBehaviour {
 
     [SerializeField]
     float DestroyLimit = 1.0f;
@@ -11,8 +14,6 @@ public class AutoDestroy : MonoBehaviour {
 	void Start () {
         StartCoroutine(Destroy());
 	}
-	
-	
 
     IEnumerator Destroy()
     {

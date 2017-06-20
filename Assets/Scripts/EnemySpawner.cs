@@ -4,6 +4,9 @@ using UnityEngine;
 
 [RequireComponent(typeof(CapsuleCollider))]
 
+/// <summary>
+/// 敵生成オブジェクト　指定座標
+/// </summary>
 public class EnemySpawner : MonoBehaviour
 {
     GameObject Player;

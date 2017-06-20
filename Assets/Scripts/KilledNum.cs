@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 撃破数表示UI管理
+/// </summary>
 public class KilledNum : MonoBehaviour
 {
     [SerializeField]
@@ -10,7 +13,9 @@ public class KilledNum : MonoBehaviour
 
     public static int KillCounter;
 
-    public static bool IsStarted;
+    public static bool IsStarted;   //  ゲーム開始後  カメラ移動演出は終わったか？
+
+    //  TODO    IsStarted   KilledNumクラスに持たせない
 
     int[] DispBox = new int[5];
 

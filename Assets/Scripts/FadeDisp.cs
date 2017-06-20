@@ -5,6 +5,9 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
 
+/// <summary>
+/// 画面切り替え  Fade処理
+/// </summary>
 public class FadeDisp : MonoBehaviour {
     [SerializeField]
     GameObject Black;
@@ -22,7 +25,7 @@ public class FadeDisp : MonoBehaviour {
         yield break;
     }
 
-    public static IEnumerator FadeOut()
+    public static IEnumerator FadeOutToTitle()
     {
         DOTween.ToAlpha(() => image.color, color => image.color = color, 1.0f, 5.0f)
             .OnComplete(() => SceneManager.LoadScene("title"));

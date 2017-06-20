@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+/// <summary>
+/// カメラ移動処理
+/// </summary>
 public class CameraMove : MonoBehaviour
 {
     GameObject Player;
@@ -29,11 +32,7 @@ public class CameraMove : MonoBehaviour
     {
         if (!KilledNum.IsStarted) return;
 
-        
-
         transform.position = Player.transform.position;
-
-       
 
         // float Camerahigh = transform.position.y + Input.GetAxisRaw("Vertical2");
 
@@ -54,6 +53,9 @@ public class CameraMove : MonoBehaviour
         Camera.transform.DOShakePosition(0.1f, 0.5f, 20);
     }
 
+    /// <summary>
+    /// ゲーム開始時  カメラ移動演出
+    /// </summary>
     IEnumerator StartCameraMove()
     {
         transform.LookAt(heroine.transform);

@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 死の予兆オブジェクト
+/// プレイヤー危険時生成
+/// </summary>
 public class DeathBall : MonoBehaviour {
     GameObject Player;
 	// Use this for initialization

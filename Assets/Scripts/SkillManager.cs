@@ -4,15 +4,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
+/// <summary>
+/// Xボタン...時間を遅くするスキル
+/// 発動中の数値管理、UI演出管理など
+/// </summary>
 public class SkillManager : MonoBehaviour
 {
-    public static float SkillPoint;
+    public static float SkillPoint; //  スキルゲージ
 
 
     [SerializeField]
-    float SkillMax = 5.0f;
+    float SkillMax = 5.0f;  //  スキルゲージ上限
+
     [SerializeField]
-    float ConsumeSkillPoint= 0.05f;
+    float ConsumeSkillPoint= 0.05f; //  減少量（毎フレーム）
+
+    //____________________________
+    //  UI管理
 
     [SerializeField]
     Text BaseTxt;

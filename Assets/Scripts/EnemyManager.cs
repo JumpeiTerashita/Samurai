@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 敵生成オブジェクト　ランダム座標
+/// </summary>
 public class EnemyManager : MonoBehaviour
 {
     [SerializeField]

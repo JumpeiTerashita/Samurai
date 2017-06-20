@@ -1,6 +1,4 @@
-﻿/// <summary>
-/// 
-/// </summary>
+﻿
 
 using UnityEngine;
 using UnityEngine.Video;
@@ -10,8 +8,11 @@ using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Animator))]
 
-//Name of class must be name of file as well
+//  TODO    PlayerBehaviorクラス   非ゴッドクラス化（責任分散）
 
+/// <summary>
+/// Playerの挙動管理
+/// </summary>
 public class PlayerBehavior : MonoBehaviour
 {
     protected Animator Animator;
@@ -48,7 +49,7 @@ public class PlayerBehavior : MonoBehaviour
     Canvas DispUI = null;
 
     GameObject CameraObject;
-    
+
     SEManager SE;
     BGMManager BGM;
 
@@ -72,13 +73,11 @@ public class PlayerBehavior : MonoBehaviour
         CameraObject = GameObject.Find("MainCamera");
         CameraObject.GetComponent<PostEffect>().enabled = false;
         IsSkillEnable = false;
-        //  Set Frame Rate
         Application.targetFrameRate = 30;
         Time.timeScale = DefaltTimeScale;
         playerBody = GetComponent<BoxCollider>();
         Animator = GetComponent<Animator>();
         state = Animator.GetCurrentAnimatorStateInfo(0);
-        //capcol = GetComponentInChildren<CapsuleCollider>();
         boxCol.enabled = false;
         locomotion = new Locomotion(Animator);
         SE = SEManager.Instance.GetComponent<SEManager>();
@@ -90,7 +89,7 @@ public class PlayerBehavior : MonoBehaviour
 
     void Update()
     {
-        
+
         if (!KilledNum.IsStarted)
         {
             locomotion.Do(0, direction * 180);
@@ -103,22 +102,22 @@ public class PlayerBehavior : MonoBehaviour
                 IsCrisis = false;
                 MakeAura = Instantiate(CrisisAura, new Vector3(transform.position.x, transform.position.y + 1.0f, transform.position.z), Quaternion.identity);
                 Invoke("DestroyAura", 1.0f);
-                SE.SEStart(8);
+                SE.SEStart(8);  //  TODO    SEStart マジックナンバーでのindex指定   分かりづらい
             }
 
             JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
             locomotion.Do(speed * 6.0f, direction * 180);
 
-            if (IsIdle&&!IsSkillEnable)
+            if (IsIdle && !IsSkillEnable)
             {
-               SkillManager.SkillPoint += 0.05f;
+                SkillManager.SkillPoint += 0.05f;
             }
 
 
 
-                if (Input.GetButtonDown("Skill") )
+            if (Input.GetButtonDown("Skill"))
             {
-                if (!IsSkillEnable&& SkillManager.SkillPoint >= 5)
+                if (!IsSkillEnable && SkillManager.SkillPoint >= 5)
                 {
                     SE.SEStart(9);
                     video.Play();
@@ -129,7 +128,7 @@ public class PlayerBehavior : MonoBehaviour
                     IsSkillEnable = true;
                     CameraObject.GetComponent<PostEffect>().enabled = true;
                 }
-               else if(IsSkillEnable)
+                else if (IsSkillEnable)
                 {
                     Animator.speed = 1;
                     StopSec = 0;
@@ -141,7 +140,7 @@ public class PlayerBehavior : MonoBehaviour
             }
 
             if (IsSkillEnable && SkillManager.SkillPoint > 0) StopSec += Time.deltaTime;
-            
+
             if (IsSkillEnable && SkillManager.SkillPoint <= 0)
             {
                 Animator.speed = 1;
@@ -152,12 +151,12 @@ public class PlayerBehavior : MonoBehaviour
                 CameraObject.GetComponent<PostEffect>().enabled = false;
             }
 
-            if ((Input.GetKeyDown(KeyCode.B) || Input.GetButtonDown("Guard")) && !Animator.GetBool("Attacking"))
+            if (Input.GetButtonDown("Guard") && !Animator.GetBool("Attacking"))
             {
                 Animator.SetBool("Guard", true);
             }
 
-            if (Input.GetKeyUp(KeyCode.B) || Input.GetButtonUp("Guard"))
+            if ( Input.GetButtonUp("Guard"))
             {
                 // Debug.Log("GuardFinished");
                 boxCol.enabled = false;
@@ -178,7 +177,7 @@ public class PlayerBehavior : MonoBehaviour
 
 
 
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Attack"))
+            if (Input.GetButtonDown("Attack"))
             {
                 if (Animator.GetBool("Attacking")) Animator.SetBool("ComboAttack", true);
                 else Animator.Play("Attack");
@@ -236,17 +235,18 @@ public class PlayerBehavior : MonoBehaviour
         SE.SEStart(6);
         Animator.SetFloat("Speed", 0.0f);
         // Debug.Log("Hit");
-        //animator.SetBool("Attacking", false);
         SE.SEStart(4);
         Invoke("DownSound", 0.6f);
         Animator.SetBool("Death", true);
         Animator.Play("Death");
-        // Debug.Log("Player Killed");
         GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
         KatanaCollider(false);
         Destroy(blood, 0.5f);
-        StartCoroutine(FadeDisp.FadeOut());
+        StartCoroutine(FadeDisp.FadeOutToTitle());
     }
+
+
+    //  各モーション  コルーチン処理
 
     IEnumerator StartAttack()
     {
@@ -308,6 +308,9 @@ public class PlayerBehavior : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// アニメーション終了時動作
+    /// </summary>
     void onStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         IsIdle = false;
@@ -337,7 +340,6 @@ public class PlayerBehavior : MonoBehaviour
             Debug.Log("Guard Start");
             SE.SEStart(1);
             boxCol.enabled = true;
-            //Debug.Log(boxCol.enabled);
             boxCol.size = new Vector3(1.0f, 0.13f, 1.3f);
         }
     }

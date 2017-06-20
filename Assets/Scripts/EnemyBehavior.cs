@@ -7,6 +7,9 @@ using UnityEngine;
 
 //Name of class must be name of file as well
 
+/// <summary>
+/// 敵   挙動管理
+/// </summary>
 public class EnemyBehavior : MonoBehaviour
 {
 
@@ -67,15 +70,10 @@ public class EnemyBehavior : MonoBehaviour
                     animator.SetBool("Attack", false);
                     animator.SetFloat("Speed", 1.0f);
                 }
-                //transform.LookAt(Player.transform.position);
+               
+                //  TODO    Enemy   行動パターン追加（巡回）
+                //  TODO    Enemy   Player感知範囲指定    非マジックナンバー化
 
-                
-                
-                //JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
-                //locomotion.Do(speed * 6, direction * 180);
-
-
-                //TODO  Enemy attacklenge not magic number
                 if (distance.magnitude <= 1.5f)
                 {          
                     if (!animator.GetBool("Attack"))
@@ -104,9 +102,7 @@ public class EnemyBehavior : MonoBehaviour
                 {
                     if (!animator.GetBool("Attack"))
                     {
-                        //Debug.Log("Move!");
                         animator.SetBool("Attack", false);
-                        // transform.position = (transform.position + (distance.normalized * 3.0f * Time.deltaTime));
                         transform.LookAt(Player.transform.position);
                        CharaCon.Move(distance.normalized*Time.deltaTime*3.0f);
                        

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// スキル発動中  モノクロ効果
+/// </summary>
 public class PostEffect : MonoBehaviour
 {
     [SerializeField]

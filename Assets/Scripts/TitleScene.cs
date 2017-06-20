@@ -5,6 +5,10 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
 
+/// <summary>
+/// タイトルシーン管理
+/// シーン遷移処理・Fade演出
+/// </summary>
 public class TitleScene : MonoBehaviour
 {
     GameObject Black;
@@ -31,7 +35,6 @@ public class TitleScene : MonoBehaviour
             audioPlayer.PlayOneShot(_SubmitSE);
             StartCoroutine(Fading());
         }
-        
 
     }
 

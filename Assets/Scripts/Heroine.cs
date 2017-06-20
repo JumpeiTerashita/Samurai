@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 姫の衝突
+/// => ゲームクリア処理
+/// </summary>
 public class Heroine : MonoBehaviour {
     CapsuleCollider Cap;
 
@@ -22,7 +26,7 @@ public class Heroine : MonoBehaviour {
             DispUI.GetComponentInChildren<Text>().text = "生還";
             KilledNum.IsStarted = false;
             Time.timeScale = 1.0f;
-            StartCoroutine(FadeDisp.FadeOut());
+            StartCoroutine(FadeDisp.FadeOutToTitle());
         }
     }
 }

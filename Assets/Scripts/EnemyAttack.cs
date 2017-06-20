@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 敵の攻撃モーション中
+/// 衝突判定・ノックバック
+/// </summary>
 public class EnemyAttack : MonoBehaviour
 {
     GameObject Player;
-
-  
 
     GameObject SoundManager;
     SEManager SE;
@@ -33,6 +35,9 @@ public class EnemyAttack : MonoBehaviour
 
         if (!EnemyAnim.GetBool("Attack")) { Debug.Log(" Unknown HIT "); return; }
 
+        //  Playerのアニメーションステート取得
+        //  TODO    StateMachineObserverを使った処理に出来ないか？
+
         bool IsDeath_Player = GameObjectManager.getAnimator(Player).GetBool("Death");
         bool IsGuard_Player = GameObjectManager.getAnimator(Player).GetBool("Guard");
         bool IsCounterAttacking = GameObjectManager.getAnimatorStateInfo(Player).IsName("CounterAttack");
@@ -54,7 +59,6 @@ public class EnemyAttack : MonoBehaviour
                 
             }
         }
-
        
     }
 

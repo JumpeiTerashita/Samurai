@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+/// <summary>
+/// アニメーション終了感知
+/// Observerパターン
+/// </summary>
 public class StateMachineObserver : StateMachineBehaviour
 {
 

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// BGMの管理クラス
+/// </summary>
 public class BGMManager : MonoBehaviour {
 
     [SerializeField]
