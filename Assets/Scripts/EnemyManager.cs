@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityStandardAssets.ImageEffects;
 /// <summary>
 /// 敵生成オブジェクト　ランダム座標
 /// </summary>

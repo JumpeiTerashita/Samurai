@@ -62,6 +62,7 @@ public class PlayerBehavior : MonoBehaviour
 
     bool IsIdle;
     bool IsAttaceCorutineRunning;
+    static public bool IsRolling;
 
     // Use this for initialization
     void Start()
@@ -82,7 +83,7 @@ public class PlayerBehavior : MonoBehaviour
         locomotion = new Locomotion(Animator);
         SE = SEManager.Instance.GetComponent<SEManager>();
         IsCrisis = false;
-
+        IsRolling = false;
         var smObserver = Animator.GetBehaviour<StateMachineObserver>();
         smObserver.onStateExit = onStateExit;
     }
@@ -107,6 +108,8 @@ public class PlayerBehavior : MonoBehaviour
 
             JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
             locomotion.Do(speed * 6.0f, direction * 180);
+
+            if (IsRolling) return;
 
             if (IsIdle && !IsSkillEnable)
             {
@@ -149,6 +152,14 @@ public class PlayerBehavior : MonoBehaviour
                 Time.timeScale = DefaltTimeScale;
                 IsSkillEnable = false;
                 CameraObject.GetComponent<PostEffect>().enabled = false;
+            }
+
+            if (Input.GetButtonDown("Rolling") && !IsRolling)
+            {
+                KatanaCollider(false);
+                IsRolling = true;
+                Animator.SetTrigger("Rolling");
+               
             }
 
             if (Input.GetButtonDown("Guard") && !Animator.GetBool("Attacking"))
@@ -320,6 +331,13 @@ public class PlayerBehavior : MonoBehaviour
             Debug.Log("Attack Start");
             StartCoroutine(StartAttack());
         }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Rolling"))
+        {
+            GetComponent<Rigidbody>().AddForce(transform.forward * 1000, ForceMode.Force);
+            // Animator.SetFloat("Speed", 100.0f);
+            KatanaCollider(false);
+            Debug.Log("Rolling Start");
+        }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("ComboAttack"))
         {
             Debug.Log("Combo Attack Start");
@@ -327,8 +345,10 @@ public class PlayerBehavior : MonoBehaviour
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Idle"))
         {
             Debug.Log("Idle Start");
+            PlayerInvicible(false);
             Animator.SetBool("Attacking", false);
             boxCol.enabled = false;
+            IsRolling = false;
             IsIdle = true;
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))

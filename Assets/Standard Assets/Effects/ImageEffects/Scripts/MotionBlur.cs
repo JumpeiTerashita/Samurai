@@ -16,7 +16,7 @@ namespace UnityStandardAssets.ImageEffects
         [Range(0.0f, 0.92f)]
         public float blurAmount = 0.8f;
         public bool extraBlur = false;
-
+       
         private RenderTexture accumTexture;
 
         override protected void Start()

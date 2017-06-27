@@ -41,8 +41,8 @@ public class EnemyAttack : MonoBehaviour
         bool IsDeath_Player = GameObjectManager.getAnimator(Player).GetBool("Death");
         bool IsGuard_Player = GameObjectManager.getAnimator(Player).GetBool("Guard");
         bool IsCounterAttacking = GameObjectManager.getAnimatorStateInfo(Player).IsName("CounterAttack");
-
-        if (!IsDeath_Player)
+        bool IsPlayerRolling = PlayerBehavior.IsRolling;
+        if (!IsDeath_Player&&!IsPlayerRolling)
         {
             if (!IsGuard_Player && !IsCounterAttacking && col.tag == "Hero")
             {
