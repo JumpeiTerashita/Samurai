@@ -29,7 +29,7 @@ public class CheckPoint : MonoBehaviour {
 
     void heroineGardnerSpawn()
     {
-        Debug.Log("OK!!!");
+        
         enemyManageObj.GetComponent<EnemyManager>().SetEnemySpawn(Hime.transform.position, 5f);
     }
 }
