@@ -63,6 +63,7 @@ public class EnemyBehavior : MonoBehaviour
 
     void Update()
     {
+     
         Vector3 DistanceToPlayer = Player.transform.position - transform.position;
         Vector3 DistanceToDestination = destination - transform.position;
 

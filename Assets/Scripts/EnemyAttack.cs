@@ -33,7 +33,8 @@ public class EnemyAttack : MonoBehaviour
     void OnTriggerEnter(Collider col)
     {
 
-        if (!EnemyAnim.GetBool("Attack")) { Debug.Log(" Unknown HIT "); return; }
+
+        if (!EnemyAnim.GetBool("Attack")) {  return; }
 
         //  Playerのアニメーションステート取得
         //  TODO    StateMachineObserverを使った処理に出来ないか？
@@ -46,7 +47,7 @@ public class EnemyAttack : MonoBehaviour
         {
             if (!IsGuard_Player && !IsCounterAttacking && col.tag == "Hero")
             {
-               // Debug.Log("プレイヤーに当たった");
+               Debug.Log("プレイヤーに当たった");
                 col.GetComponent<PlayerBehavior>().EnemyKatanaHit();
                 CameraMove.ShakeCamera();
             }
