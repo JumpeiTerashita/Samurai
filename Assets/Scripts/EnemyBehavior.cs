@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 //using DG.Tweening;
 
 [RequireComponent(typeof(Animator))]
@@ -39,7 +40,10 @@ public class EnemyBehavior : MonoBehaviour
 
     float StayTime;
     [SerializeField]
-    float StayLimit;
+    float StayLimit = 3;
+
+    [SerializeField]
+    int AIpattern = 0;
 
     // Use this for initialization
     void Start()
@@ -115,6 +119,8 @@ public class EnemyBehavior : MonoBehaviour
                 }
                 else
                 {
+
+
                     //  Enemy 移動
                     if (!animator.GetBool("Attack") && !IsArrived)
                     {
@@ -122,11 +128,21 @@ public class EnemyBehavior : MonoBehaviour
                         animator.SetBool("Attack", false);
                         if (DistanceToPlayer.magnitude <= 10.0f)
                         {
-                            Debug.Log("Player Sensing");
                             animator.SetFloat("Speed", 2.0f);
+
+                            if (AIpattern == 1) animator.SetFloat("Speed", 3.0f);
+
                             destination = Player.transform.position;
                         }
-                        transform.LookAt(destination);
+                        else if (AIpattern == 1)
+                        {
+                            animator.SetFloat("Speed", 0.0f);
+                            IsArrived = true;
+                            StayLimit = 1;
+                            return;
+                        }
+
+                        transform.DOLookAt(destination, 1.0f);
                         Vector3 velocity = DistanceToDestination.normalized * Time.deltaTime * 1.5f *animator.GetFloat("Speed");
                         velocity.y += Physics.gravity.y * Time.deltaTime;
                         CharaCon.Move(velocity);
@@ -134,7 +150,7 @@ public class EnemyBehavior : MonoBehaviour
                         if (Vector3.Distance(destination, transform.position) < 1)
                         {
                             IsArrived = true;
-                            Debug.Log("Arrived");
+                    
                             animator.SetFloat("Speed", 0.0f);
                         }
                     }
@@ -143,7 +159,7 @@ public class EnemyBehavior : MonoBehaviour
                         StayTime += Time.deltaTime;
                         if (StayLimit < StayTime)
                         {
-                            Debug.Log("Destination Changed");
+                           
                             IsArrived = false;
                             GetComponent<DestinationManager>().SetDestination(Player.transform.position);
                             destination = GetComponent<DestinationManager>().GetDestination();

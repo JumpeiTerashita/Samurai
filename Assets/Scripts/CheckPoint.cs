@@ -7,14 +7,15 @@ using UnityEngine;
 /// </summary>
 public class CheckPoint : MonoBehaviour {
 
-    GameObject enemyManageObj;
+    GameObject EnemySpawner;
+    GameObject EnemySpawner2;
 
     GameObject Hime;
     BoxCollider check;
 	// Use this for initialization
 	void Start () {
-        enemyManageObj = GameObject.Find("EnemyManager");
-        Hime = GameObject.Find("Heroine");
+        EnemySpawner = GameObject.Find("EnemySpawner");
+        EnemySpawner2 = GameObject.Find("EnemySpawner2");
         check = GetComponent<BoxCollider>();
 	}
 
@@ -22,14 +23,11 @@ public class CheckPoint : MonoBehaviour {
     {
         if (other.tag == "Hero")
         {
-            
-            InvokeRepeating("heroineGardnerSpawn", 0.0f, 5.0f);
+            EnemySpawner.transform.position = new Vector3(8, 0, 84);
+            EnemySpawner.GetComponent<EnemySpawner>().SetSpawnSpan(12);
+            Destroy(EnemySpawner2.gameObject);
         }
     }
 
-    void heroineGardnerSpawn()
-    {
-        
-        enemyManageObj.GetComponent<EnemyManager>().SetEnemySpawn(Hime.transform.position, 5f);
-    }
+    
 }

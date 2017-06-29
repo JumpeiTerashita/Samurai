@@ -5,7 +5,8 @@ using UnityEngine;
 /// <summary>
 /// BGMの管理クラス
 /// </summary>
-public class BGMManager : MonoBehaviour {
+public class BGMManager : SingleTon<BGMManager>
+{
 
     [SerializeField]
     AudioClip[] _runBGM = new AudioClip[4];
@@ -24,7 +25,8 @@ public class BGMManager : MonoBehaviour {
     //SoundStart関数
     public void SoundStart(int SoundNum)
     {
-        audioPlayer.clip = _runBGM[SoundNum];   
+        audioPlayer.clip = _runBGM[SoundNum];
+        audioPlayer.Play();
     }
 
     //SoundStop関数

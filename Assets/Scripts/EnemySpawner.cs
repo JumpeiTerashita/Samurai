@@ -51,8 +51,11 @@ public class EnemySpawner : MonoBehaviour
         }
         else
         {
+            SpawnPoint = transform.position;
+            SpawnPoint.y = 0;
             GameObject SpawnedEnemy = Instantiate(Enemy, SpawnPoint, Quaternion.identity);
             SpawnedEnemy.transform.LookAt(Player.transform.position);
+            SpawnedEnemy.GetComponent<DestinationManager>().SetDestination(Player.transform.position);
             Animator SpawnedEnemyAnim = GameObjectManager.getAnimator(SpawnedEnemy);
             SpawnedEnemyAnim.Play("Locomotion.Born");
         }
@@ -67,6 +70,11 @@ public class EnemySpawner : MonoBehaviour
     void OnTriggerStay(Collider col)
     {
         if (col.tag == "Enemy") isAlreadySpawn = true;
+    }
+
+    public void SetSpawnSpan(float _sec)
+    {
+        SpawnSpan = _sec;
     }
 
     }

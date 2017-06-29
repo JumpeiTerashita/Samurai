@@ -11,9 +11,11 @@ public class CameraMove : MonoBehaviour
     GameObject Player;
     GameObject heroine;
     static GameObject Camera;
-    GameObject Katana;
+   
     [SerializeField]
     float RotateSpeed;
+
+    static public bool HimeIsDead;
 
     // Use this for initialization
     void Start()
@@ -22,6 +24,8 @@ public class CameraMove : MonoBehaviour
         heroine = GameObject.Find("Heroine");
         Camera = GameObject.Find("CameraSetPos");
 
+
+        HimeIsDead = false;
         transform.position = heroine.transform.position;
         transform.LookAt(heroine.transform);
         StartCoroutine(StartCameraMove());
@@ -30,6 +34,8 @@ public class CameraMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+
         if (!KilledNum.IsStarted) return;
 
         transform.position = Player.transform.position;
@@ -56,11 +62,14 @@ public class CameraMove : MonoBehaviour
 
         // transform.RotateAround(transform.position, Vector3.left, RotateSpeed * Input.GetAxisRaw("Vertical2"));
 
-       
+        if (HimeIsDead)
+        {
+            HimeIsDead = false;
+            StartCoroutine(HeroineDeathMove());
+        }
 
         if (Input.GetButtonDown("CameraSet"))
         {
-          
             transform.DOLocalRotateQuaternion(Player.transform.rotation, 1.0f);
         }
 
@@ -68,8 +77,30 @@ public class CameraMove : MonoBehaviour
 
     static public void ShakeCamera()
     {
-       // Debug.Log("Shake!");
+        Debug.Log("Shake!");
         Camera.transform.DOShakePosition(0.1f, 0.5f, 20);
+    }
+
+
+   IEnumerator HeroineDeathMove()
+    {
+        BGMManager.Instance.GetComponent<BGMManager>().SoundStop();
+        Camera.transform.position = Player.transform.position;
+        Camera.transform.LookAt(heroine.transform);
+        KilledNum.IsStarted = false;
+        Player.GetComponent<Animator>().Play("Down");
+        yield return new WaitForSeconds(1f);
+        Camera.transform.LookAt(heroine.transform);
+        transform.DOMove(Player.transform.position, 1.0f);
+        yield return new WaitForSeconds(2f);
+        Camera.transform.LookAt(heroine.transform);
+        transform.DOMove(Player.transform.position,1.0f);
+
+        Camera.transform.DOLookAt(new Vector3(heroine.transform.position.x, heroine.transform.position.y+2, heroine.transform.position.z),4.0f);
+        yield return new WaitForSeconds(3f);
+        BGMManager.Instance.GetComponent<BGMManager>().SoundStart(1);
+        KilledNum.IsStarted = true;
+        yield break;
     }
 
     /// <summary>

@@ -1,21 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+
 using DG.Tweening;
 
 /// <summary>
 /// 姫の衝突
 /// => ゲームクリア処理
 /// </summary>
-public class Heroine : MonoBehaviour {
+public class Heroine : MonoBehaviour
+{
+
+
     CapsuleCollider Cap;
+
+    [SerializeField]
+    GameObject Thunder;
 
     [SerializeField]
     GameObject Aura;
 
-    [SerializeField]
-    Canvas ClearUI;
 
     [SerializeField]
     GameObject Boss;
@@ -24,18 +28,22 @@ public class Heroine : MonoBehaviour {
 
     Vector3 HimePos;
 
+    SEManager SE;
+
+
     void Start()
     {
         Cap = GetComponent<CapsuleCollider>();
         Anim = GetComponent<Animator>();
         Anim.SetBool("Touched", false);
         HimePos = this.transform.position;
-        Debug.Log("HimePos:"+HimePos);
+        Debug.Log("HimePos:" + HimePos);
+        SE = SEManager.Instance.GetComponent<SEManager>();
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Hero"&&!Anim.GetBool("Touched"))
+        if (collision.gameObject.tag == "Hero" && !Anim.GetBool("Touched"))
         {
             Anim.Play("Death");
             Anim.SetBool("Touched", true);
@@ -50,17 +58,29 @@ public class Heroine : MonoBehaviour {
 
     IEnumerator HimeDeath()
     {
+        CameraMove.HimeIsDead = true;
         Cap.enabled = false;
-        yield return new WaitForSeconds(1.0f);
         HimePos.y += 0.1f;
+        GameObject ThuInst = Instantiate(Thunder);
+        ThuInst.transform.position = HimePos;
+
+        SE.SEStart(11);
+       
+        yield return new WaitForSeconds(1.0f);
+
         GameObject AuraInst = Instantiate(Aura);
         AuraInst.transform.position = HimePos;
-        AuraInst.transform.DOScale(2.0f,2.5f);
-        Debug.Log("AuraPos:"+AuraInst.transform.position);
+     
+
         yield return new WaitForSeconds(2.5f);
         GameObject BossInst = Instantiate(Boss);
+       
+        BossInst.transform.LookAt(GameObject.Find("Player").transform.position);
+        BossInst.transform.position = HimePos;
         BossInst.GetComponent<Animator>().Play("Locomotion.Spawn");
+        SE.SEStart(13);
         yield return new WaitForSeconds(1.0f);
+        SE.SEStart(14);
         Destroy(gameObject);
         yield break;
     }

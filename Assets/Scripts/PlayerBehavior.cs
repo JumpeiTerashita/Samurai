@@ -93,7 +93,8 @@ public class PlayerBehavior : MonoBehaviour
 
         if (!KilledNum.IsStarted)
         {
-            locomotion.Do(0, direction * 180);
+            Animator.SetFloat("Speed", 0.0f);
+            locomotion.Do(0, 0);
             return;
         }
         if (Animator && Camera.main && !Animator.GetBool("Death"))
@@ -159,7 +160,7 @@ public class PlayerBehavior : MonoBehaviour
                 KatanaCollider(false);
                 IsRolling = true;
                 Animator.SetTrigger("Rolling");
-               
+                SE.SEStart(12);
             }
 
             if (Input.GetButtonDown("Guard") && !Animator.GetBool("Attacking"))
@@ -190,7 +191,7 @@ public class PlayerBehavior : MonoBehaviour
 
             if (Input.GetButtonDown("Attack"))
             {
-                if (Animator.GetBool("Attacking")) Animator.SetBool("ComboAttack", true);
+                if (Animator.GetBool("Attacking")&&IsAttaceCorutineRunning) Animator.SetBool("ComboAttack", true);
                 else Animator.Play("Attack");
             }
 
@@ -354,6 +355,11 @@ public class PlayerBehavior : MonoBehaviour
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
         {
             Debug.Log("Death Start");
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("SitUp"))
+        {
+            transform.position = transform.position - transform.forward*3f;
+         
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Guard"))
         {
