@@ -44,7 +44,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (!IsGuard && col.tag == "Enemy")
         {
-          //  Debug.Log("敵に当たった");
+            StartCoroutine(Player.GetComponent<PlayerBehavior>().AttackHitStop(0.1f));
             SE.SEStart(7);
             col.GetComponent<EnemyBehavior>().Damaged();
         }

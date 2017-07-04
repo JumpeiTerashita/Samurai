@@ -265,6 +265,14 @@ public class PlayerBehavior : MonoBehaviour
         StartCoroutine(FadeDisp.FadeOutToTitle());
     }
 
+    public IEnumerator AttackHitStop(float time)
+    {
+        float DefaultSpeed = Animator.speed;
+        Animator.speed = 0.1f;
+        yield return new WaitForSeconds(time);
+        Animator.speed = DefaultSpeed;
+        yield break;
+    }
 
     //  各モーション  コルーチン処理
 
