@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-//using DG.Tweening;
+using Enemy;
+using MotionValues;
 
 [RequireComponent(typeof(Animator))]
 
@@ -26,7 +27,7 @@ public class EnemyBehavior : MonoBehaviour
     CharacterController CharaCon;
 
     [SerializeField]
-    BoxCollider boxCol;
+    BoxCollider WeaponCollider;
 
     [SerializeField]
     GameObject bloodParticle;
@@ -45,6 +46,22 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField]
     int AIpattern = 0;
 
+    [SerializeField]
+    float AttackLength = 1.5f;
+
+    [SerializeField]
+    float SenseLength = 10.0f;
+
+    [SerializeField]
+    float ArriveLength = 1.0f;
+
+    [SerializeField]
+    float MoveSpeed = 1.0f;
+    [SerializeField]
+    float MoveSpeed_High = 3.0f;
+
+    MotionTiming Attack1Timings;
+    MotionTiming Attack2Timings;
     // Use this for initialization
     void Start()
     {
@@ -54,7 +71,7 @@ public class EnemyBehavior : MonoBehaviour
         IsArrived = false;
         locomotion = new Locomotion(animator);
         state = animator.GetCurrentAnimatorStateInfo(0);
-        boxCol.enabled = false;
+        WeaponCollider.enabled = false;
         GameObject SoundManager = GameObject.Find("SoundManager");
         SE = SoundManager.GetComponentInChildren<SEManager>();
         CharaCon = GetComponent<CharacterController>();
@@ -62,120 +79,115 @@ public class EnemyBehavior : MonoBehaviour
         var smObserver = animator.GetBehaviour<StateMachineObserver>();
         smObserver.onStateExit = onStateExit;
         StayTime = 0;
+        Attack1Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("EnemyAttack");
+        Attack2Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("EnemyAttack2");
         //animator.Play("Locomotion.Born");
     }
 
     void Update()
     {
-     
-        Vector3 DistanceToPlayer = Player.transform.position - transform.position;
-        Vector3 DistanceToDestination = destination - transform.position;
-
+        IsDead = state.IsName("Locomotion.Death");
 
         if (IsDead || !KilledNum.IsStarted) return;
 
         if (animator)
         {
             state = animator.GetCurrentAnimatorStateInfo(0);
-            if (!state.IsName("Locomotion.Death") && !state.IsName("Locomotion.Born"))
+            bool IsBorning = state.IsName("Locomotion.Born");
+            if (IsBorning) return;
+
+            if (!JudgeNowAttacking())
             {
-                if (!state.IsName("Locomotion.Attack") && !state.IsName("Locomotion.Attack2"))
-                {
-                    boxCol.enabled = false;
-                    animator.SetBool("Attack", false);
-                    animator.SetFloat("Speed", 0.0f);
-                }
+                WeaponCollider.enabled = false;
+                animator.SetBool("Attack", false);
+                SetSpeed(0);
+            }
 
-                //  TODO    Enemy   行動パターン追加（巡回）
-                //  TODO    Enemy   Player感知範囲指定    非マジックナンバー化
-               
+            Vector3 DistanceToPlayer = Player.transform.position - transform.position;
 
+            if (DistanceToPlayer.magnitude <= AttackLength)
+            {
+                if (JudgeNowAttacking()) return;
 
-                if (DistanceToPlayer.magnitude <= 1.5f)
-                {
-                    if (!animator.GetBool("Attack"))
-                    {
-                        PlayerBehavior.IsCrisis = true;
-                        // Debug.Log("Pinch!");
-                        transform.LookAt(Player.transform.position);
-                        transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
-                        if (Random.Range(0.0f, 1.0f) >= 0.5f)
-                        {
-                            animator.Play("Attack");
-                            animator.SetBool("Attack", true);
-                            animator.SetFloat("Speed", 0.0f);
-
-                        }
-                        else
-                        {
-                            animator.Play("Attack2");
-                            animator.SetBool("Attack", true);
-                            animator.SetFloat("Speed", 0);
-
-                        }
-
-                    }
-
-                }
-                else
-                {
-
-
-                    //  Enemy 移動
-                    if (!animator.GetBool("Attack") && !IsArrived)
-                    {
-                        animator.SetFloat("Speed", 1.0f);
-                        animator.SetBool("Attack", false);
-                        if (DistanceToPlayer.magnitude <= 10.0f)
-                        {
-                            animator.SetFloat("Speed", 2.0f);
-
-                            if (AIpattern == 1) animator.SetFloat("Speed", 3.0f);
-
-                            destination = Player.transform.position;
-                        }
-                        else if (AIpattern == 1)
-                        {
-                            animator.SetFloat("Speed", 0.0f);
-                            IsArrived = true;
-                            StayLimit = 1;
-                            return;
-                        }
-
-                        transform.DOLookAt(destination, 1.0f);
-                        Vector3 velocity = DistanceToDestination.normalized * Time.deltaTime * 1.5f *animator.GetFloat("Speed");
-                        velocity.y += Physics.gravity.y * Time.deltaTime;
-                        CharaCon.Move(velocity);
-                        transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
-                        if (Vector3.Distance(destination, transform.position) < 1)
-                        {
-                            IsArrived = true;
-                    
-                            animator.SetFloat("Speed", 0.0f);
-                        }
-                    }
-                    else if (IsArrived)
-                    {
-                        StayTime += Time.deltaTime;
-                        if (StayLimit < StayTime)
-                        {
-                           
-                            IsArrived = false;
-                            GetComponent<DestinationManager>().SetDestination(Player.transform.position);
-                            destination = GetComponent<DestinationManager>().GetDestination();
-                            StayTime = 0;
-                            return;
-                        }
-                    }
-
-                }
+                //  攻撃開始
+                PlayerBehavior.IsCrisis = true;
+                transform.LookAt(Player.transform.position);
+                transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
+                if (Random.Range(0.0f, 1.0f) >= 0.5f) animator.Play("Attack");
+                else animator.Play("Attack2");
+                animator.SetBool("Attack", true);
+                SetSpeed(0);
             }
             else
             {
-                boxCol.enabled = false;
+                //  攻撃範囲外
+                if (!JudgeNowAttacking() && !IsArrived)
+                {
+                    Move();
+                }
+                else if (IsArrived) Stay();
+
             }
         }
+    }
 
+    void Move()
+    {
+        Vector3 DistanceToPlayer = Player.transform.position - transform.position;
+        Vector3 DistanceToDestination = destination - transform.position;
+
+        SetSpeed(MoveSpeed);
+        animator.SetBool("Attack", false);
+        if (DistanceToPlayer.magnitude <= SenseLength)
+        {
+            SetSpeed(MoveSpeed*2.0f);
+            if (AIpattern == 1) SetSpeed(MoveSpeed_High);
+            destination = Player.transform.position;
+        }
+        else if (AIpattern == 1)
+        {
+            SetSpeed(0);
+            IsArrived = true;
+            StayLimit = 1;
+            return;
+        }
+        transform.DOLookAt(destination, 1.0f);
+        Vector3 velocity = DistanceToDestination.normalized * Time.deltaTime * 1.5f * animator.GetFloat("Speed");
+        velocity.y += Physics.gravity.y * Time.deltaTime;
+        CharaCon.Move(velocity);
+        transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
+        if (Vector3.Distance(destination, transform.position) < ArriveLength)
+        {
+            IsArrived = true;
+            SetSpeed(0);
+        }
+    }
+
+    void Stay()
+    {
+        //  一定時間(StayLimit)経過後、目的地変更
+        StayTime += Time.deltaTime;
+        if (StayLimit < StayTime)
+        {
+            IsArrived = false;
+            GetComponent<DestinationManager>().SetDestination(Player.transform.position);
+            destination = GetComponent<DestinationManager>().GetDestination();
+            StayTime = 0;
+            return;
+        }
+    }
+
+    bool JudgeNowAttacking()
+    {
+        state = animator.GetCurrentAnimatorStateInfo(0);
+        if (state.IsName("Locomotion.Attack") || state.IsName("Locomotion.Attack2")) return true;
+        if (animator.GetBool("Attack")) return true;
+        return false;
+    }
+
+    void SetSpeed(float _Speed)
+    {
+        animator.SetFloat("Speed", _Speed);
     }
 
     void AttackSound()
@@ -185,16 +197,32 @@ public class EnemyBehavior : MonoBehaviour
 
     void KatanaCollider(bool _Is)
     {
-        boxCol.enabled = _Is;
+        WeaponCollider.enabled = _Is;
+    }
+
+    public void SetAiPattern(int _AiPattern)
+    {
+        AIpattern = _AiPattern;
+    }
+
+    public void SetSettings(Enemy.EnemySetting EnemySet)
+    {
+        StayLimit = EnemySet.StayLimit;
+        AIpattern = EnemySet.AIPattern;
+        AttackLength = EnemySet.ArriveLength;
+        SenseLength = EnemySet.SenseLength;
+        ArriveLength = EnemySet.ArriveLength;
+        MoveSpeed = EnemySet.MoveSpeed;
+        MoveSpeed_High = EnemySet.MoveSpeed_High;
     }
 
     IEnumerator StartAttack()
     {
-        yield return new WaitForSeconds(0.35f);
+        yield return new WaitForSeconds(Attack1Timings.MotionPeriods[0]);
         KatanaCollider(true);
-        yield return new WaitForSeconds(0.02f);
+        yield return new WaitForSeconds(Attack1Timings.MotionPeriods[1]);
         AttackSound();
-        yield return new WaitForSeconds(0.73f);
+        yield return new WaitForSeconds(Attack1Timings.MotionPeriods[2]);
         AttackSound();
         KatanaCollider(false);
         yield break;
@@ -202,19 +230,19 @@ public class EnemyBehavior : MonoBehaviour
 
     IEnumerator StartAttack2()
     {
-        yield return new WaitForSeconds(0.40f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[0]);
         KatanaCollider(true);
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[1]);
         AttackSound();
-        yield return new WaitForSeconds(0.75f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[2]);
         AttackSound();
-        yield return new WaitForSeconds(0.85f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[3]);
         AttackSound();
         KatanaCollider(false);
         yield break;
     }
 
-    public void PlayerKatanaHit()
+    public void Damaged()
     {
         if (!animator.GetBool("Death") && !IsDead)
         {
@@ -231,7 +259,6 @@ public class EnemyBehavior : MonoBehaviour
             Destroy(blood, 0.5f);
             Destroy(this.gameObject, 3.0f);
         }
-
 
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using MotionValues;
 
 [RequireComponent(typeof(Animator))]
 
@@ -51,6 +52,12 @@ public class BossBehavior : MonoBehaviour
     [SerializeField]
     int Life = 6;
 
+    MotionTiming Attack1Timings;
+    MotionTiming Attack2Timings;
+    MotionTiming DamageReactTimings;
+
+    bool IsAttackCoroutineRunning;
+    bool IsPunchCoroutineRunning;
     // Use this for initialization
     void Start()
     {
@@ -72,7 +79,11 @@ public class BossBehavior : MonoBehaviour
         smObserver.onStateExit = onStateExit;
         StayTime = 0;
 
-     
+        Attack1Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("BossAttack");
+        Attack2Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("BossAttack2");
+        DamageReactTimings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("BossDamageReact");
+        IsAttackCoroutineRunning = false;
+        IsPunchCoroutineRunning = false;
     }
 
     void Update()
@@ -192,7 +203,7 @@ public class BossBehavior : MonoBehaviour
         SE.SEStart(15);
     }
 
-    void KatanaCollider(bool _Is)
+    void AttackCollider(bool _Is)
     {
         boxCol.enabled = _Is;
         boxCol2.enabled = _Is;
@@ -200,41 +211,47 @@ public class BossBehavior : MonoBehaviour
 
     IEnumerator StartAttack()
     {
-        yield return new WaitForSeconds(0.3f);
+        if (IsAttackCoroutineRunning) yield break;
+        IsAttackCoroutineRunning = true;
+        yield return new WaitForSeconds(Attack1Timings.MotionPeriods[0]);
         transform.DOLookAt(Player.transform.position, 0.2f);
-        yield return new WaitForSeconds(0.2f);
-        KatanaCollider(true);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(Attack1Timings.MotionPeriods[1]);
+        AttackCollider(true);
+        yield return new WaitForSeconds(Attack1Timings.MotionPeriods[2]);
         AttackSound();
-        yield return new WaitForSeconds(0.6f);
-        KatanaCollider(false);
+        yield return new WaitForSeconds(Attack1Timings.MotionPeriods[3]);
+        AttackCollider(false);
+        IsAttackCoroutineRunning = false;
         yield break;
     }
 
     IEnumerator StartPunch()
     {
-        yield return new WaitForSeconds(1f);
+        if (IsPunchCoroutineRunning) yield break;
+        IsPunchCoroutineRunning = true;
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[0]);
         boxCol2.enabled = true;
-        yield return new WaitForSeconds(0.02f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[1]);
         AttackSound();
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[2]);
         boxCol2.enabled = false;
         transform.DOLookAt(Player.transform.position, 1.0f);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[3]);
         boxCol.enabled = true;
-        yield return new WaitForSeconds(0.02f);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[4]);
         AttackSound();
-        yield return new WaitForSeconds(1.1f);
-        KatanaCollider(false);
+        yield return new WaitForSeconds(Attack2Timings.MotionPeriods[5]);
+        AttackCollider(false);
+        IsPunchCoroutineRunning = false;
         yield break;
     }
 
     IEnumerator Damaging()
     {
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(DamageReactTimings.MotionPeriods[0]);
         animator.SetBool("Damaging", false);
         CharaCon.enabled = false;
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(DamageReactTimings.MotionPeriods[1]);
         CharaCon.enabled = true;
         yield break;
     }
@@ -248,7 +265,7 @@ public class BossBehavior : MonoBehaviour
             GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
             Destroy(blood, 0.5f);
             Life--;
-            Debug.Log("Now Boss Life : " + Life);
+            Debug.Log("Boss Life Changed to : " + Life);
             if (Life <= 0) Death();
         }
     }
@@ -258,7 +275,7 @@ public class BossBehavior : MonoBehaviour
         if (!animator.GetBool("Death") && !IsDead)
         {
             IsDead = true;
-            KatanaCollider(false);
+            AttackCollider(false);
             animator.SetFloat("Speed", 0.0f);
             // Debug.Log("Hit");
             //animator.SetBool("Attacking", false);
@@ -283,26 +300,19 @@ public class BossBehavior : MonoBehaviour
         if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack"))
         {
             // Debug.Log("Enemy : Attack Start");
-            KatanaCollider(false);
+            AttackCollider(false);
             StartCoroutine(StartAttack());
-        }
-        else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack2"))
-        {
-            //Debug.Log("Enemy : Attack2j Start");
-
-
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Punch"))
         {
-
-            KatanaCollider(false);
+            AttackCollider(false);
             StartCoroutine(StartPunch());
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Damaged"))
         {
             //   Debug.Log("Enemy : Death Start");
             animator.SetBool("Attack", false);
-            KatanaCollider(false);
+            AttackCollider(false);
             StartCoroutine(Damaging());
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Idle"))
@@ -310,13 +320,23 @@ public class BossBehavior : MonoBehaviour
             CanMove = true;
             //  Debug.Log("Enemy : Idle Start");
             animator.SetBool("Attack", false);
-            KatanaCollider(false);
+            AttackCollider(false);
+            if (IsAttackCoroutineRunning)
+            {
+                IsAttackCoroutineRunning = false;
+                StopCoroutine(StartAttack());
+            }
+            if (IsPunchCoroutineRunning)
+            {
+                IsPunchCoroutineRunning = false;
+                StopCoroutine(StartPunch());
+            }
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
         {
             //   Debug.Log("Enemy : Death Start");
             animator.SetBool("Attack", false);
-            KatanaCollider(false);
+            AttackCollider(false);
         }
 
     }

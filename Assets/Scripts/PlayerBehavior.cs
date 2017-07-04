@@ -1,10 +1,9 @@
-﻿
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Video;
 using System;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using MotionValues;
 
 [RequireComponent(typeof(Animator))]
 
@@ -61,13 +60,18 @@ public class PlayerBehavior : MonoBehaviour
     VideoPlayer video;
 
     bool IsIdle;
-    bool IsAttaceCorutineRunning;
+    bool IsAttackCoroutineRunning;
+    bool IsCounterAttackCoroutineRunning;
     static public bool IsRolling;
+
+    MotionTiming AttackTimings;
+    MotionTiming CounterAttackTimings;
 
     // Use this for initialization
     void Start()
     {
-        IsAttaceCorutineRunning = false;
+        IsAttackCoroutineRunning = false;
+        IsCounterAttackCoroutineRunning = false;
         IsIdle = false;
         video = GetComponent<VideoPlayer>();
         StopSec = 0;
@@ -86,6 +90,9 @@ public class PlayerBehavior : MonoBehaviour
         IsRolling = false;
         var smObserver = Animator.GetBehaviour<StateMachineObserver>();
         smObserver.onStateExit = onStateExit;
+
+        AttackTimings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("PlayerAttack");
+        CounterAttackTimings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("PlayerCounterAttack");
     }
 
     void Update()
@@ -191,7 +198,7 @@ public class PlayerBehavior : MonoBehaviour
 
             if (Input.GetButtonDown("Attack"))
             {
-                if (Animator.GetBool("Attacking")&&IsAttaceCorutineRunning) Animator.SetBool("ComboAttack", true);
+                if (Animator.GetBool("Attacking")&&IsAttackCoroutineRunning) Animator.SetBool("ComboAttack", true);
                 else Animator.Play("Attack");
             }
 
@@ -242,7 +249,7 @@ public class PlayerBehavior : MonoBehaviour
     }
 
 
-    public void EnemyKatanaHit()
+    public void Damged()
     {
         SE.SEStart(6);
         Animator.SetFloat("Speed", 0.0f);
@@ -262,62 +269,54 @@ public class PlayerBehavior : MonoBehaviour
 
     IEnumerator StartAttack()
     {
-        if (IsAttaceCorutineRunning) yield break;
-        IsAttaceCorutineRunning = true;
+        if (IsAttackCoroutineRunning) yield break;
+        IsAttackCoroutineRunning = true;
         Animator.SetBool("Attacking", true);
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(AttackTimings.MotionPeriods[0]);
         KatanaCollider(true);
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(AttackTimings.MotionPeriods[1]);
         AttackSound();
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(AttackTimings.MotionPeriods[2]);
         AttackSound();
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(AttackTimings.MotionPeriods[3]);
         KatanaCollider(false);
 
         if (Animator.GetBool("ComboAttack"))
         {
             Animator.SetBool("ComboAttack", false);
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(AttackTimings.MotionPeriods[4]);
             KatanaCollider(true);
             AttackSound();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(AttackTimings.MotionPeriods[5]);
             KatanaCollider(false);
-            yield return new WaitForSeconds(0.4f);
-            Animator.SetBool("Attacking", false);
-            IsAttaceCorutineRunning = false;
-            yield break;
+            yield return new WaitForSeconds(AttackTimings.MotionPeriods[6]);
+           
         }
-        else
-        {
-            Animator.SetBool("ComboAttack", false);
-            Animator.SetBool("Attacking", false);
-            IsAttaceCorutineRunning = false;
-            yield break;
-        }
+        else Animator.SetBool("ComboAttack", false);
+           
+        Animator.SetBool("Attacking", false);
+        IsAttackCoroutineRunning = false;
+        yield break;
 
     }
 
     IEnumerator StartCounterAttack()
     {
+        if (IsCounterAttackCoroutineRunning) yield break;
+        IsCounterAttackCoroutineRunning = true;
         PlayerInvicible(true);
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[0]);
         KatanaCollider(true);
-        yield return new WaitForSeconds(0.35f);
+        yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[1]);
         AttackSound();
-        yield return new WaitForSeconds(0.22f);
+        yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[2]);
         AttackSound();
-        yield return new WaitForSeconds(0.18f);
+        yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[3]);
         KatanaCollider(false);
         PlayerInvicible(false);
-        yield return new WaitForSeconds(0.35f);
+        yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[4]);
+        IsAttackCoroutineRunning = false;
         yield break;
-    }
-
-    bool IsAnimFinished()
-    {
-        var AnimState = Animator.GetCurrentAnimatorStateInfo(1);
-        if (AnimState.normalizedTime <= 1.0f) return false;
-        return true;
     }
 
     /// <summary>
@@ -351,6 +350,20 @@ public class PlayerBehavior : MonoBehaviour
             boxCol.enabled = false;
             IsRolling = false;
             IsIdle = true;
+            if (IsAttackCoroutineRunning)
+            {
+                StopCoroutine(StartAttack());
+                Animator.SetBool("ComboAttack", false);
+                Animator.SetBool("Attacking", false);
+                IsAttackCoroutineRunning = false;
+            }
+
+            if (IsCounterAttackCoroutineRunning)
+            {
+                StopCoroutine(StartCounterAttack());
+                IsCounterAttackCoroutineRunning = false;
+            }
+           
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
         {

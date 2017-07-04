@@ -46,7 +46,7 @@ public class PlayerAttack : MonoBehaviour
         {
           //  Debug.Log("敵に当たった");
             SE.SEStart(7);
-            col.GetComponent<EnemyBehavior>().PlayerKatanaHit();
+            col.GetComponent<EnemyBehavior>().Damaged();
         }
     }
 }
