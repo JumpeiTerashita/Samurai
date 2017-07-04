@@ -86,13 +86,18 @@ public class EnemyBehavior : MonoBehaviour
 
     void Update()
     {
+        state = animator.GetCurrentAnimatorStateInfo(0);
         IsDead = state.IsName("Locomotion.Death");
 
         if (IsDead || !KilledNum.IsStarted) return;
 
         if (animator)
         {
-            state = animator.GetCurrentAnimatorStateInfo(0);
+
+            transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
+
+
+
             bool IsBorning = state.IsName("Locomotion.Born");
             if (IsBorning) return;
 
@@ -108,7 +113,8 @@ public class EnemyBehavior : MonoBehaviour
             if (DistanceToPlayer.magnitude <= AttackLength)
             {
                 if (JudgeNowAttacking()) return;
-
+                IsArrived = true;
+                StayTime = StayLimit;
                 //  攻撃開始
                 PlayerBehavior.IsCrisis = true;
                 transform.LookAt(Player.transform.position);
@@ -138,9 +144,10 @@ public class EnemyBehavior : MonoBehaviour
 
         SetSpeed(MoveSpeed);
         animator.SetBool("Attack", false);
+        AttackCollider(false);
         if (DistanceToPlayer.magnitude <= SenseLength)
         {
-            SetSpeed(MoveSpeed*2.0f);
+            SetSpeed(MoveSpeed * 2.0f);
             if (AIpattern == 1) SetSpeed(MoveSpeed_High);
             destination = Player.transform.position;
         }
@@ -195,7 +202,7 @@ public class EnemyBehavior : MonoBehaviour
         SE.SEStart(0);
     }
 
-    void KatanaCollider(bool _Is)
+    void AttackCollider(bool _Is)
     {
         WeaponCollider.enabled = _Is;
     }
@@ -219,26 +226,26 @@ public class EnemyBehavior : MonoBehaviour
     IEnumerator StartAttack()
     {
         yield return new WaitForSeconds(Attack1Timings.MotionPeriods[0]);
-        KatanaCollider(true);
+        AttackCollider(true);
         yield return new WaitForSeconds(Attack1Timings.MotionPeriods[1]);
         AttackSound();
         yield return new WaitForSeconds(Attack1Timings.MotionPeriods[2]);
         AttackSound();
-        KatanaCollider(false);
+        AttackCollider(false);
         yield break;
     }
 
     IEnumerator StartAttack2()
     {
         yield return new WaitForSeconds(Attack2Timings.MotionPeriods[0]);
-        KatanaCollider(true);
+        AttackCollider(true);
         yield return new WaitForSeconds(Attack2Timings.MotionPeriods[1]);
         AttackSound();
         yield return new WaitForSeconds(Attack2Timings.MotionPeriods[2]);
         AttackSound();
         yield return new WaitForSeconds(Attack2Timings.MotionPeriods[3]);
         AttackSound();
-        KatanaCollider(false);
+        AttackCollider(false);
         yield break;
     }
 
@@ -246,13 +253,16 @@ public class EnemyBehavior : MonoBehaviour
     {
         if (!animator.GetBool("Death") && !IsDead)
         {
+            
             IsDead = true;
-            KatanaCollider(false);
+            AttackCollider(false);
             animator.SetFloat("Speed", 0.0f);
             // Debug.Log("Hit");
             //animator.SetBool("Attacking", false);
             animator.SetBool("Death", true);
             animator.Play("Death");
+            transform.LookAt(Player.transform.position);
+            transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
             KilledNum.KillCounter++;
             SkillManager.SkillPoint += 0.5f;
             GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
@@ -267,26 +277,27 @@ public class EnemyBehavior : MonoBehaviour
         if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack"))
         {
             // Debug.Log("Enemy : Attack Start");
-            KatanaCollider(false);
+            AttackCollider(false);
             StartCoroutine(StartAttack());
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack2"))
         {
             //Debug.Log("Enemy : Attack2j Start");
-            KatanaCollider(false);
+            AttackCollider(false);
             StartCoroutine(StartAttack2());
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Idle"))
         {
             //  Debug.Log("Enemy : Idle Start");
             animator.SetBool("Attack", false);
-            KatanaCollider(false);
+            AttackCollider(false);
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
         {
             //   Debug.Log("Enemy : Death Start");
             animator.SetBool("Attack", false);
-            KatanaCollider(false);
+            AttackCollider(false);
+            transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
         }
 
     }

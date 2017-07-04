@@ -23,15 +23,18 @@ public class PlayerBehavior : MonoBehaviour
     static public bool IsSkillEnable;
 
     [SerializeField]
+    float GainSkillPoint = 0.1f;
+
+    [SerializeField]
     GameObject CrisisAura;
     GameObject MakeAura = null;
 
     AnimatorStateInfo state;
 
-    BoxCollider playerBody;
+    BoxCollider PlayerBodyCollider;
 
     [SerializeField]
-    BoxCollider boxCol;
+    BoxCollider WeaponCollider;
 
     [SerializeField]
     GameObject bloodParticle;
@@ -80,10 +83,10 @@ public class PlayerBehavior : MonoBehaviour
         IsSkillEnable = false;
         Application.targetFrameRate = 30;
         Time.timeScale = DefaltTimeScale;
-        playerBody = GetComponent<BoxCollider>();
+        PlayerBodyCollider = GetComponent<BoxCollider>();
         Animator = GetComponent<Animator>();
         state = Animator.GetCurrentAnimatorStateInfo(0);
-        boxCol.enabled = false;
+        WeaponCollider.enabled = false;
         locomotion = new Locomotion(Animator);
         SE = SEManager.Instance.GetComponent<SEManager>();
         IsCrisis = false;
@@ -106,101 +109,30 @@ public class PlayerBehavior : MonoBehaviour
         }
         if (Animator && Camera.main && !Animator.GetBool("Death"))
         {
+            JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
+            locomotion.Do(speed * 6.0f, direction * 180);
+
             if (IsCrisis && !MakeAura)
             {
                 IsCrisis = false;
                 MakeAura = Instantiate(CrisisAura, new Vector3(transform.position.x, transform.position.y + 1.0f, transform.position.z), Quaternion.identity);
-                Invoke("DestroyAura", 1.0f);
                 SE.SEStart(8);  //  TODO    SEStart マジックナンバーでのindex指定   分かりづらい
             }
 
-            JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
-            locomotion.Do(speed * 6.0f, direction * 180);
-
             if (IsRolling) return;
 
-            if (IsIdle && !IsSkillEnable)
-            {
-                SkillManager.SkillPoint += 0.05f;
-            }
+            if (IsIdle && !IsSkillEnable) SkillManager.SkillPoint += GainSkillPoint;
+          
 
+            if (Input.GetButtonDown("Rolling") && !IsRolling) Rolling();
 
+            if (Input.GetButtonDown("Guard") && !Animator.GetBool("Attacking")) Guard();
 
-            if (Input.GetButtonDown("Skill"))
-            {
-                if (!IsSkillEnable && SkillManager.SkillPoint >= 5)
-                {
-                    SE.SEStart(9);
-                    video.Play();
-                    Animator.speed = 2;
-                    StopSec = 0;
-                    Debug.Log("Skill");
-                    Time.timeScale = 0.5f;
-                    IsSkillEnable = true;
-                    CameraObject.GetComponent<PostEffect>().enabled = true;
-                }
-                else if (IsSkillEnable)
-                {
-                    Animator.speed = 1;
-                    StopSec = 0;
-                    Debug.Log("Skill Over");
-                    Time.timeScale = DefaltTimeScale;
-                    IsSkillEnable = false;
-                    CameraObject.GetComponent<PostEffect>().enabled = false;
-                }
-            }
+            if (Input.GetButtonUp("Guard")) GuardFinished();
+               
+            Skill();
 
-            if (IsSkillEnable && SkillManager.SkillPoint > 0) StopSec += Time.deltaTime;
-
-            if (IsSkillEnable && SkillManager.SkillPoint <= 0)
-            {
-                Animator.speed = 1;
-                StopSec = 0;
-                Debug.Log("Skill Over");
-                Time.timeScale = DefaltTimeScale;
-                IsSkillEnable = false;
-                CameraObject.GetComponent<PostEffect>().enabled = false;
-            }
-
-            if (Input.GetButtonDown("Rolling") && !IsRolling)
-            {
-                KatanaCollider(false);
-                IsRolling = true;
-                Animator.SetTrigger("Rolling");
-                SE.SEStart(12);
-            }
-
-            if (Input.GetButtonDown("Guard") && !Animator.GetBool("Attacking"))
-            {
-                Animator.SetBool("Guard", true);
-            }
-
-            if ( Input.GetButtonUp("Guard"))
-            {
-                // Debug.Log("GuardFinished");
-                boxCol.enabled = false;
-                boxCol.size = new Vector3(0.3f, 0.13f, 1.3f);
-                Animator.SetBool("Guard", false);
-                state = Animator.GetCurrentAnimatorStateInfo(0);
-                if (state.IsName("Locomotion.KnockBack"))
-                {
-                    Animator.SetTrigger("CounterAttack");
-                    Instantiate(Flash, boxCol.transform.position, Quaternion.identity);
-                    SE.SEStart(2);
-                    StartCoroutine(StartCounterAttack());
-
-                }
-            }
-
-
-
-
-
-            if (Input.GetButtonDown("Attack"))
-            {
-                if (Animator.GetBool("Attacking")&&IsAttackCoroutineRunning) Animator.SetBool("ComboAttack", true);
-                else Animator.Play("Attack");
-            }
+            if (Input.GetButtonDown("Attack")) Attack();
 
         }
         else
@@ -216,14 +148,87 @@ public class PlayerBehavior : MonoBehaviour
         }
     }
 
-    void PlayerInvicible(bool _Is)
+    void Rolling()
     {
-        playerBody.enabled = !_Is;
+        AttackCollider(false);
+        IsRolling = true;
+        Animator.SetTrigger("Rolling");
+        SE.SEStart(12);
     }
 
-    void KatanaCollider(bool _Is)
+    void Guard()
     {
-        boxCol.enabled = _Is;
+        Animator.SetBool("Guard", true);
+    }
+
+    void GuardFinished()
+    {
+        AttackCollider(false);
+        WeaponCollider.size = new Vector3(0.3f, 0.13f, 1.3f);
+        Animator.SetBool("Guard", false);
+        state = Animator.GetCurrentAnimatorStateInfo(0);
+        if (state.IsName("Locomotion.KnockBack"))
+        {
+            Animator.SetTrigger("CounterAttack");
+            Instantiate(Flash, WeaponCollider.transform.position, Quaternion.identity);
+            SE.SEStart(2);
+            StartCoroutine(StartCounterAttack());
+        }
+    }
+
+    void Attack()
+    {
+        if (Animator.GetBool("Attacking") && IsAttackCoroutineRunning) Animator.SetBool("ComboAttack", true);
+        else Animator.Play("Attack");
+    }
+
+    void Skill()
+    {
+        if (Input.GetButtonDown("Skill"))
+        {
+            if (!IsSkillEnable && SkillManager.SkillPoint >= 5)
+            {
+                SE.SEStart(9);
+                video.Play();
+                Animator.speed = 2;
+                StopSec = 0;
+                Debug.Log("Skill");
+                Time.timeScale = 0.5f;
+                IsSkillEnable = true;
+                CameraObject.GetComponent<PostEffect>().enabled = true;
+            }
+            else if (IsSkillEnable)
+            {
+                Animator.speed = 1;
+                StopSec = 0;
+                Debug.Log("Skill Over");
+                Time.timeScale = DefaltTimeScale;
+                IsSkillEnable = false;
+                CameraObject.GetComponent<PostEffect>().enabled = false;
+            }
+        }
+
+        if (IsSkillEnable && SkillManager.SkillPoint > 0) StopSec += Time.deltaTime;
+
+        if (IsSkillEnable && SkillManager.SkillPoint <= 0)
+        {
+            Animator.speed = 1;
+            StopSec = 0;
+            Debug.Log("Skill Over");
+            Time.timeScale = DefaltTimeScale;
+            IsSkillEnable = false;
+            CameraObject.GetComponent<PostEffect>().enabled = false;
+        }
+    }
+
+    void PlayerInvicible(bool _Is)
+    {
+        PlayerBodyCollider.enabled = !_Is;
+    }
+
+    void AttackCollider(bool _Is)
+    {
+        WeaponCollider.enabled = _Is;
     }
 
 
@@ -238,10 +243,6 @@ public class PlayerBehavior : MonoBehaviour
         SE.SEStart(5);
     }
 
-    void DestroyAura()
-    {
-        Destroy(MakeAura.gameObject);
-    }
 
     public void MakeWeaponSpark(Vector3 _MakePosition)
     {
@@ -259,7 +260,7 @@ public class PlayerBehavior : MonoBehaviour
         Animator.SetBool("Death", true);
         Animator.Play("Death");
         GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
-        KatanaCollider(false);
+        AttackCollider(false);
         Destroy(blood, 0.5f);
         StartCoroutine(FadeDisp.FadeOutToTitle());
     }
@@ -269,31 +270,32 @@ public class PlayerBehavior : MonoBehaviour
 
     IEnumerator StartAttack()
     {
+       
         if (IsAttackCoroutineRunning) yield break;
         IsAttackCoroutineRunning = true;
         Animator.SetBool("Attacking", true);
         yield return new WaitForSeconds(AttackTimings.MotionPeriods[0]);
-        KatanaCollider(true);
+        AttackCollider(true);
         yield return new WaitForSeconds(AttackTimings.MotionPeriods[1]);
         AttackSound();
         yield return new WaitForSeconds(AttackTimings.MotionPeriods[2]);
         AttackSound();
         yield return new WaitForSeconds(AttackTimings.MotionPeriods[3]);
-        KatanaCollider(false);
+        AttackCollider(false);
 
         if (Animator.GetBool("ComboAttack"))
         {
             Animator.SetBool("ComboAttack", false);
             yield return new WaitForSeconds(AttackTimings.MotionPeriods[4]);
-            KatanaCollider(true);
+            AttackCollider(true);
             AttackSound();
             yield return new WaitForSeconds(AttackTimings.MotionPeriods[5]);
-            KatanaCollider(false);
+            AttackCollider(false);
             yield return new WaitForSeconds(AttackTimings.MotionPeriods[6]);
-           
+
         }
         else Animator.SetBool("ComboAttack", false);
-           
+
         Animator.SetBool("Attacking", false);
         IsAttackCoroutineRunning = false;
         yield break;
@@ -306,16 +308,16 @@ public class PlayerBehavior : MonoBehaviour
         IsCounterAttackCoroutineRunning = true;
         PlayerInvicible(true);
         yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[0]);
-        KatanaCollider(true);
+        AttackCollider(true);
         yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[1]);
         AttackSound();
         yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[2]);
         AttackSound();
         yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[3]);
-        KatanaCollider(false);
+        AttackCollider(false);
         PlayerInvicible(false);
         yield return new WaitForSeconds(CounterAttackTimings.MotionPeriods[4]);
-        IsAttackCoroutineRunning = false;
+        IsCounterAttackCoroutineRunning = false;
         yield break;
     }
 
@@ -328,14 +330,12 @@ public class PlayerBehavior : MonoBehaviour
 
         if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Attack"))
         {
-            Debug.Log("Attack Start");
             StartCoroutine(StartAttack());
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Rolling"))
         {
             GetComponent<Rigidbody>().AddForce(transform.forward * 1000, ForceMode.Force);
-            // Animator.SetFloat("Speed", 100.0f);
-            KatanaCollider(false);
+            AttackCollider(false);
             Debug.Log("Rolling Start");
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("ComboAttack"))
@@ -347,7 +347,7 @@ public class PlayerBehavior : MonoBehaviour
             Debug.Log("Idle Start");
             PlayerInvicible(false);
             Animator.SetBool("Attacking", false);
-            boxCol.enabled = false;
+            WeaponCollider.enabled = false;
             IsRolling = false;
             IsIdle = true;
             if (IsAttackCoroutineRunning)
@@ -363,7 +363,6 @@ public class PlayerBehavior : MonoBehaviour
                 StopCoroutine(StartCounterAttack());
                 IsCounterAttackCoroutineRunning = false;
             }
-           
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
         {
@@ -371,15 +370,15 @@ public class PlayerBehavior : MonoBehaviour
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("SitUp"))
         {
-            transform.position = transform.position - transform.forward*3f;
-         
+            transform.position = transform.position - transform.forward * 3f;
+
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Guard"))
         {
             Debug.Log("Guard Start");
             SE.SEStart(1);
-            boxCol.enabled = true;
-            boxCol.size = new Vector3(1.0f, 0.13f, 1.3f);
+            WeaponCollider.enabled = true;
+            WeaponCollider.size = new Vector3(1.0f, 0.13f, 1.3f);
         }
     }
 }

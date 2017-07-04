@@ -13,7 +13,6 @@ using MotionValues;
 /// </summary>
 public class BossBehavior : MonoBehaviour
 {
-
     protected Animator animator;
 
     GameObject Player;
@@ -46,6 +45,16 @@ public class BossBehavior : MonoBehaviour
     Vector3 destination;
 
     float StayTime;
+
+    [SerializeField]
+    float MoveSpeed = 1.0f;
+
+    [SerializeField]
+    float SenseLength = 10.0f;
+
+    [SerializeField]
+    float AttackLength = 3.0f;
+
     [SerializeField]
     float StayLimit;
 
@@ -88,114 +97,108 @@ public class BossBehavior : MonoBehaviour
 
     void Update()
     {
-        Vector3 DistanceToPlayer = Player.transform.position - transform.position;
-        Vector3 DistanceToDestination = destination - transform.position;
-
+        state = animator.GetCurrentAnimatorStateInfo(0);
+        IsDead = state.IsName("Locomotion.Death");
 
         if (!CanMove || IsDead || !KilledNum.IsStarted) return;
 
         if (animator)
         {
-            state = animator.GetCurrentAnimatorStateInfo(0);
-            if (!state.IsName("Locomotion.Death") && !state.IsName("Locomotion.Born"))
+            bool IsBorning = state.IsName("Locomotion.Born");
+            if (IsBorning) return;
+
+            if (!JudgeNowAttacking())
             {
-                if (!state.IsName("Locomotion.Attack") && !state.IsName("Locomotion.Attack2") && !state.IsName("Locomotion.Punch") && !state.IsName("Locomotion.NextPunch"))
-                {
-                    boxCol.enabled = false;
-                    animator.SetBool("Attack", false);
-                    animator.SetFloat("Speed", 0.0f);
-                }
+                AttackCollider(false);
+                animator.SetBool("Attack", false);
+                SetSpeed(0);
+            }
 
-             
+            Vector3 DistanceToPlayer = Player.transform.position - transform.position;
+           
+            if (DistanceToPlayer.magnitude <= AttackLength)
+            {
+                if (JudgeNowAttacking()) return;
+                if (animator.GetBool("Damaging")) return;
+                IsArrived = true;
 
-
-                if (DistanceToPlayer.magnitude <= 3.0f)
-                {
-                    IsArrived = true;
-                    if (!animator.GetBool("Attack") && !animator.GetBool("Damaging"))
-                    {
-                        PlayerBehavior.IsCrisis = true;
-                        // Debug.Log("Pinch!");
-
-                        transform.DOLookAt(Player.transform.position,0.5f);
-                        transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
-
-                        float RandomAttack = Random.Range(0.0f, 1.0f);
-                        Debug.Log(RandomAttack);
-                        if (RandomAttack >= 0.5f)
-                        {
-                            Debug.Log("Attack");
-                            animator.Play("Attack");
-                        }
-                        else
-                        {
-                            Debug.Log("Punch");
-                            animator.Play("Punch");
-                        }
-
-                        animator.SetBool("Attack", true);
-                        animator.SetFloat("Speed", 0.0f);
-
-
-
-
-                    }
-
-                }
-                else
-                {
-                    //  Enemy 移動
-                    if (!animator.GetBool("Attack") && !IsArrived)
-                    {
-
-                        animator.SetFloat("Speed", 1.0f);
-                        animator.SetBool("Attack", false);
-                        if (DistanceToPlayer.magnitude <= 10.0f)
-                        {
-                            //   Debug.Log("Player Sensing");
-                            animator.SetFloat("Speed", 2.0f);
-                            destination = Player.transform.position;
-                        }
-                        transform.DOLookAt(destination,1.0f);
-                        Vector3 velocity = DistanceToDestination.normalized * Time.deltaTime * 3f * animator.GetFloat("Speed");
-                        velocity.y += Physics.gravity.y * Time.deltaTime;
-                        //Debug.Log(velocity);
-                        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Run"))
-                        {
-                            CharaCon.Move(velocity);
-                        }
-                        //transform.position = new Vector3(transform.position.x+velocity.x,transform.position.y,transform.position.z+velocity.z);
-                        transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
-                        if (Vector3.Distance(destination, transform.position) < 0.5f)
-                        {
-                            IsArrived = true;
-                           
-                            animator.SetFloat("Speed", 0.0f);
-                        }
-                    }
-                    else if (IsArrived)
-                    {
-                        StayTime += Time.deltaTime;
-                        if (StayLimit <= StayTime)
-                        {
-                           
-                            IsArrived = false;
-                            GetComponent<DestinationManager>().SetDestination(Player.transform.position);
-                            destination = GetComponent<DestinationManager>().GetDestination();
-                            StayTime = 0;
-                            return;
-                        }
-                    }
-
-                }
+                //  攻撃開始
+                PlayerBehavior.IsCrisis = true;
+                transform.DOLookAt(Player.transform.position, 0.5f);
+                transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
+                if (Random.Range(0.0f, 1.0f) >= 0.5f) animator.Play("Attack");
+                else animator.Play("Punch");
+                animator.SetBool("Attack", true);
+                SetSpeed(0);
             }
             else
             {
-                boxCol.enabled = false;
-                boxCol2.enabled = false;
+                //  攻撃範囲外
+                if (!JudgeNowAttacking() && !IsArrived)
+                {
+                    Move();
+                }
+                else if (IsArrived) Stay();
             }
         }
 
+    }
+
+    void Move()
+    {
+        Vector3 DistanceToPlayer = Player.transform.position - transform.position;
+        Vector3 DistanceToDestination = destination - transform.position;
+
+        SetSpeed(MoveSpeed);
+        animator.SetBool("Attack", false);
+        AttackCollider(false);
+        if (DistanceToPlayer.magnitude <= SenseLength)
+        {
+            SetSpeed(MoveSpeed*2.0f);
+            destination = Player.transform.position;
+        }
+        transform.DOLookAt(destination, 1.0f);
+        Vector3 velocity = DistanceToDestination.normalized * Time.deltaTime * 3f * animator.GetFloat("Speed");
+        velocity.y += Physics.gravity.y * Time.deltaTime;
+        //Debug.Log(velocity);
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Run"))
+        {
+            CharaCon.Move(velocity);
+        }
+        //transform.position = new Vector3(transform.position.x+velocity.x,transform.position.y,transform.position.z+velocity.z);
+        transform.Rotate(-transform.eulerAngles.x, 0, -transform.eulerAngles.z);
+        if (Vector3.Distance(destination, transform.position) < 0.5f)
+        {
+            IsArrived = true;
+            SetSpeed(0);
+        }
+    }
+
+    void Stay()
+    {
+        //  一定時間(StayLimit)経過後、目的地変更
+        StayTime += Time.deltaTime;
+        if (StayLimit <= StayTime)
+        {
+            IsArrived = false;
+            GetComponent<DestinationManager>().SetDestination(Player.transform.position);
+            destination = GetComponent<DestinationManager>().GetDestination();
+            StayTime = 0;
+            return;
+        }
+    }
+
+    bool JudgeNowAttacking()
+    {
+        state = animator.GetCurrentAnimatorStateInfo(0);
+        if (state.IsName("Locomotion.Attack") || state.IsName("Locomotion.Attack2") || state.IsName("Locomotion.Punch") || state.IsName("Locomotion.NextPunch")) return true;
+        if (animator.GetBool("Attack")) return true;
+        return false;
+    }
+
+    void SetSpeed(float _Speed)
+    {
+        animator.SetFloat("Speed", _Speed);
     }
 
     void AttackSound()
@@ -249,9 +252,9 @@ public class BossBehavior : MonoBehaviour
     IEnumerator Damaging()
     {
         yield return new WaitForSeconds(DamageReactTimings.MotionPeriods[0]);
-        animator.SetBool("Damaging", false);
         CharaCon.enabled = false;
         yield return new WaitForSeconds(DamageReactTimings.MotionPeriods[1]);
+        animator.SetBool("Damaging", false);
         CharaCon.enabled = true;
         yield break;
     }
@@ -280,7 +283,7 @@ public class BossBehavior : MonoBehaviour
             // Debug.Log("Hit");
             //animator.SetBool("Attacking", false);
             animator.SetBool("Death", true);
-            animator.Play("Death");
+            animator.Play("Death");            
             KilledNum.KillCounter++;
             SkillManager.SkillPoint += 0.5f;
             GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
@@ -314,6 +317,16 @@ public class BossBehavior : MonoBehaviour
             animator.SetBool("Attack", false);
             AttackCollider(false);
             StartCoroutine(Damaging());
+            if (IsAttackCoroutineRunning)
+            {
+                IsAttackCoroutineRunning = false;
+                StopCoroutine(StartAttack());
+            }
+            if (IsPunchCoroutineRunning)
+            {
+                IsPunchCoroutineRunning = false;
+                StopCoroutine(StartPunch());
+            }
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Idle"))
         {
@@ -341,21 +354,17 @@ public class BossBehavior : MonoBehaviour
 
     }
 
-   
+
 
     void OnTriggerEnter(Collider col)
     {
-
-
         if (col.tag == "Katana")
         {
             bool IsGuard_Player = GameObjectManager.getAnimator(Player).GetBool("Guard");
             if (IsGuard_Player) return;
             Damage();
         }
-
     }
-
 }
 
 

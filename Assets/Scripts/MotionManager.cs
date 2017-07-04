@@ -75,7 +75,7 @@ public class MotionManager : SingleTon<MotionManager>
     //  Period[0] = 0.3f
     //  Period[1] = 0.2f
     //  Period[2] = 0.5f
-    //  Period[3] = 0.4f
+    //  Period[3] = 1f
 
     [SerializeField]
     MotionTiming BossAttack2;
@@ -85,7 +85,7 @@ public class MotionManager : SingleTon<MotionManager>
     //  Period[2] = 1f
     //  Period[3] = 1f
     //  Period[4] = 0.02f
-    //  Period[5] = 1.1f
+    //  Period[5] = 1f
 
     [SerializeField]
     MotionTiming BossDamageReact;
@@ -95,7 +95,7 @@ public class MotionManager : SingleTon<MotionManager>
 
     Dictionary<string, MotionTiming> dictionary = new Dictionary<string, MotionTiming>();
 
-    private void Start()
+    private void Awake()
     {
         dictionary.Add("PlayerAttack", PlayerAttack);
         dictionary.Add("PlayerCounterAttack", PlayerCounterAttack);
@@ -105,6 +105,7 @@ public class MotionManager : SingleTon<MotionManager>
         dictionary.Add("BossAttack2", BossAttack2);
         dictionary.Add("BossDamageReact", BossDamageReact);
     }
+
 
     public MotionTiming GetMotionValue(string _TargetTag)
     {
