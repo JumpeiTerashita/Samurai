@@ -47,6 +47,7 @@ public class PlayerAttack : MonoBehaviour
             StartCoroutine(Player.GetComponent<PlayerBehavior>().AttackHitStop(0.1f));
             SE.SEStart(7);
             col.GetComponent<EnemyBehavior>().Damaged();
+            StartCoroutine(col.GetComponent<EnemyBehavior>().AttackHitStop(0.1f));
         }
     }
 }

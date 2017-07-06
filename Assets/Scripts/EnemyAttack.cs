@@ -48,12 +48,14 @@ public class EnemyAttack : MonoBehaviour
             if (!IsGuard_Player && !IsCounterAttacking && col.tag == "Hero")
             {
                Debug.Log("プレイヤーに当たった");
+                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(0.1f));
                 col.GetComponent<PlayerBehavior>().Damged();
                 CameraMove.ShakeCamera();
             }
             else if (IsGuard_Player && col.tag == "Hero")
             {
                 SE.SEStart(3);
+                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(0.1f));
                 GameObjectManager.getAnimator(Player).SetTrigger("KnockBack");
                 CameraMove.ShakeCamera();
                 col.GetComponent<PlayerBehavior>().MakeWeaponSpark(transform.position);

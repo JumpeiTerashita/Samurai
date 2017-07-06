@@ -67,9 +67,11 @@ public class BossBehavior : MonoBehaviour
 
     bool IsAttackCoroutineRunning;
     bool IsPunchCoroutineRunning;
+    bool IsHitStiopEnabled;
     // Use this for initialization
     void Start()
     {
+        IsHitStiopEnabled = false;
         Player = GameObject.Find("Player");
         animator = GetComponent<Animator>();
         IsDead = false;
@@ -249,6 +251,18 @@ public class BossBehavior : MonoBehaviour
         yield break;
     }
 
+    public IEnumerator AttackHitStop(float time)
+    {
+        if (IsHitStiopEnabled) yield break;
+        IsHitStiopEnabled = true;
+        float DefaultSpeed = animator.speed;
+        animator.speed = 0.1f;
+        yield return new WaitForSeconds(time);
+        animator.speed = DefaultSpeed;
+        IsHitStiopEnabled = false;
+        yield break;
+    }
+
     IEnumerator Damaging()
     {
         yield return new WaitForSeconds(DamageReactTimings.MotionPeriods[0]);
@@ -362,6 +376,7 @@ public class BossBehavior : MonoBehaviour
         {
             bool IsGuard_Player = GameObjectManager.getAnimator(Player).GetBool("Guard");
             if (IsGuard_Player) return;
+            StartCoroutine(AttackHitStop(0.1f));
             Damage();
         }
     }

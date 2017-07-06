@@ -66,6 +66,7 @@ public class PlayerBehavior : MonoBehaviour
     bool IsAttackCoroutineRunning;
     bool IsCounterAttackCoroutineRunning;
     static public bool IsRolling;
+    bool IsHitStopEnabled;
 
     MotionTiming AttackTimings;
     MotionTiming CounterAttackTimings;
@@ -73,6 +74,7 @@ public class PlayerBehavior : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        IsHitStopEnabled = false;
         IsAttackCoroutineRunning = false;
         IsCounterAttackCoroutineRunning = false;
         IsIdle = false;
@@ -179,7 +181,7 @@ public class PlayerBehavior : MonoBehaviour
     void Attack()
     {
         if (Animator.GetBool("Attacking") && IsAttackCoroutineRunning) Animator.SetBool("ComboAttack", true);
-        else Animator.Play("Attack");
+        else Animator.SetTrigger("Attack");
     }
 
     void Skill()
@@ -267,10 +269,13 @@ public class PlayerBehavior : MonoBehaviour
 
     public IEnumerator AttackHitStop(float time)
     {
+        if (IsHitStopEnabled) yield break;
+        IsHitStopEnabled = true;
         float DefaultSpeed = Animator.speed;
         Animator.speed = 0.1f;
         yield return new WaitForSeconds(time);
         Animator.speed = DefaultSpeed;
+        IsHitStopEnabled = false;
         yield break;
     }
 

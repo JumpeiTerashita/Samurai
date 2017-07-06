@@ -62,9 +62,11 @@ public class EnemyBehavior : MonoBehaviour
 
     MotionTiming Attack1Timings;
     MotionTiming Attack2Timings;
+    bool IsHitStopEnabled;
     // Use this for initialization
     void Start()
     {
+        IsHitStopEnabled = false;
         Player = GameObject.Find("Player");
         animator = GetComponent<Animator>();
         IsDead = false;
@@ -249,6 +251,18 @@ public class EnemyBehavior : MonoBehaviour
         yield break;
     }
 
+    public IEnumerator AttackHitStop(float time)
+    {
+        if (IsHitStopEnabled) yield break;
+        IsHitStopEnabled = true;
+        float DefaultSpeed = animator.speed;
+        animator.speed = 0.1f;
+        yield return new WaitForSeconds(time);
+        animator.speed = DefaultSpeed;
+        IsHitStopEnabled = false;
+        yield break;
+    }
+
     public void Damaged()
     {
         if (!animator.GetBool("Death") && !IsDead)
@@ -304,12 +318,12 @@ public class EnemyBehavior : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Enemy")
-        {
-            Vector3 Distance = transform.position - collision.transform.position;
+        //if (collision.gameObject.tag == "Enemy")
+        //{
+        //    Vector3 Distance = transform.position - collision.transform.position;
 
-            transform.position = new Vector3(transform.position.x + Distance.x * 0.5f, 0, transform.position.z + Distance.z * 0.5f);
-        }
+        //    transform.position = new Vector3(transform.position.x + Distance.x * 0.5f, 0, transform.position.z + Distance.z * 0.5f);
+        //}
     }
 
 }
