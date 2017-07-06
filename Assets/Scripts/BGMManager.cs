@@ -12,8 +12,7 @@ public class BGMManager : SingleTon<BGMManager>
     AudioClip[] _runBGM = new AudioClip[4];
 
     AudioClip _stopBGM = null;               
-    AudioSource audioPlayer;                         
-    private int Num = -1;                           
+    AudioSource audioPlayer;                                                
     // Use this for initialization
     void Start()
     {

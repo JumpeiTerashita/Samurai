@@ -93,9 +93,12 @@ public class MotionManager : SingleTon<MotionManager>
     //  Period[0] = 1f
     //  Period[1] = 2f
 
+
+    public float HitStopTime = 0.1f;
+
     Dictionary<string, MotionTiming> dictionary = new Dictionary<string, MotionTiming>();
 
-    private void Awake()
+    new private void Awake()
     {
         dictionary.Add("PlayerAttack", PlayerAttack);
         dictionary.Add("PlayerCounterAttack", PlayerCounterAttack);
@@ -109,7 +112,11 @@ public class MotionManager : SingleTon<MotionManager>
 
     public MotionTiming GetMotionValue(string _TargetTag)
     {
-        // TODO タグが存在しない！ => エラーにする
+        if (!dictionary.ContainsKey(_TargetTag))
+        {
+            Debug.LogError("ERROR!: " + _TargetTag + " はDictionaryに存在しません！");
+            return null;
+        }
         return dictionary[_TargetTag];
     }
 }

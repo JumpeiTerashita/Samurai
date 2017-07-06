@@ -19,9 +19,7 @@ public class EnemyBehavior : MonoBehaviour
 
     GameObject Player;
     GameObject Enemy;
-    float speed = 2.0f;
     //private float direction = 0;
-    Locomotion locomotion = null;
     AnimatorStateInfo state;
 
     CharacterController CharaCon;
@@ -71,7 +69,6 @@ public class EnemyBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         IsDead = false;
         IsArrived = false;
-        locomotion = new Locomotion(animator);
         state = animator.GetCurrentAnimatorStateInfo(0);
         WeaponCollider.enabled = false;
         GameObject SoundManager = GameObject.Find("SoundManager");
@@ -83,6 +80,7 @@ public class EnemyBehavior : MonoBehaviour
         StayTime = 0;
         Attack1Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("EnemyAttack");
         Attack2Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("EnemyAttack2");
+        
         //animator.Play("Locomotion.Born");
     }
 

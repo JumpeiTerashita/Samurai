@@ -12,12 +12,13 @@ public class EnemyAttack : MonoBehaviour
 
     GameObject SoundManager;
     SEManager SE;
-    bool oneHit;
 
     [SerializeField]
     GameObject Enemy;
 
     Animator EnemyAnim;
+
+    float HitStopTime;
     
     // Use this for initialization
     void Start()
@@ -26,7 +27,7 @@ public class EnemyAttack : MonoBehaviour
         SoundManager = GameObject.Find("SoundManager");
         SE = SoundManager.GetComponentInChildren<SEManager>();
         EnemyAnim = GameObjectManager.getAnimator(Enemy);
-        oneHit = false;
+        HitStopTime = MotionManager.Instance.GetComponent<MotionManager>().HitStopTime;
     }
 
 
@@ -48,14 +49,14 @@ public class EnemyAttack : MonoBehaviour
             if (!IsGuard_Player && !IsCounterAttacking && col.tag == "Hero")
             {
                Debug.Log("プレイヤーに当たった");
-                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(0.1f));
+                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(HitStopTime));
                 col.GetComponent<PlayerBehavior>().Damged();
                 CameraMove.ShakeCamera();
             }
             else if (IsGuard_Player && col.tag == "Hero")
             {
                 SE.SEStart(3);
-                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(0.1f));
+                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(HitStopTime));
                 GameObjectManager.getAnimator(Player).SetTrigger("KnockBack");
                 CameraMove.ShakeCamera();
                 col.GetComponent<PlayerBehavior>().MakeWeaponSpark(transform.position);

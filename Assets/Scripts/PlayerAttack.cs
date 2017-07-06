@@ -15,6 +15,9 @@ public class PlayerAttack : MonoBehaviour
     SEManager SE;
     Animator PlayerAnim;
 
+    float HitStopTime;
+
+
     // Use this for initialization
     void Start()
     {
@@ -23,6 +26,7 @@ public class PlayerAttack : MonoBehaviour
         SoundManager = GameObject.Find("SoundManager");
         SE = SoundManager.GetComponentInChildren<SEManager>();
         WeaponTrail = GetComponentInChildren<TrailRenderer>();
+        HitStopTime = MotionManager.Instance.GetComponent<MotionManager>().HitStopTime;
     }
 
     // Update is called once per frame
@@ -44,10 +48,17 @@ public class PlayerAttack : MonoBehaviour
 
         if (!IsGuard && col.tag == "Enemy")
         {
-            StartCoroutine(Player.GetComponent<PlayerBehavior>().AttackHitStop(0.1f));
+            StartCoroutine(Player.GetComponent<PlayerBehavior>().AttackHitStop(HitStopTime));
             SE.SEStart(7);
             col.GetComponent<EnemyBehavior>().Damaged();
-            StartCoroutine(col.GetComponent<EnemyBehavior>().AttackHitStop(0.1f));
+            StartCoroutine(col.GetComponent<EnemyBehavior>().AttackHitStop(HitStopTime));
+        }
+
+        if (!IsGuard && col.tag == "Boss")
+        {
+            StartCoroutine(Player.GetComponent<PlayerBehavior>().AttackHitStop(HitStopTime));
+            SE.SEStart(7);
+           
         }
     }
 }

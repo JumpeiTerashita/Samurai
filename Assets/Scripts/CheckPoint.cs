@@ -11,12 +11,10 @@ public class CheckPoint : MonoBehaviour {
     GameObject EnemySpawner2;
 
     GameObject Hime;
-    BoxCollider check;
 	// Use this for initialization
 	void Start () {
         EnemySpawner = GameObject.Find("EnemySpawner");
         EnemySpawner2 = GameObject.Find("EnemySpawner2");
-        check = GetComponent<BoxCollider>();
 	}
 
     void OnTriggerEnter(Collider other)

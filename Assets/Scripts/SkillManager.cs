@@ -90,7 +90,8 @@ public class SkillManager : MonoBehaviour
     {
         yield return new WaitForSeconds(_WaitSec);
         GameObject Copy = Instantiate(DecorationImage, BaseTxt.transform.position, Quaternion.identity);
-        Copy.transform.parent = BaseTxt.transform;
+        //Copy.transform.parent = BaseTxt.transform;
+        Copy.transform.SetParent(BaseTxt.transform);
         Copy.transform.localPosition = new Vector3(-14, 1, 1);
         Copy.transform.localScale = new Vector3(3.5f, 2f, 1);
         Image CopyIm = Copy.GetComponent<Image>();

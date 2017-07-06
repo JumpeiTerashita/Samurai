@@ -13,7 +13,6 @@ public class SEManager : SingleTon<SEManager> {
     AudioClip[] _runSE = new AudioClip[20];
 
     AudioSource audioPlayer;                           
-    private int Num = -1;
     // Use this for initialization
     void Start()
     {

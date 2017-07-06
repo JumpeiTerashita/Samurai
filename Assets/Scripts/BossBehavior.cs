@@ -17,9 +17,8 @@ public class BossBehavior : MonoBehaviour
 
     GameObject Player;
     GameObject Enemy;
-    float speed = 2.0f;
     //private float direction = 0;
-    Locomotion locomotion = null;
+
     AnimatorStateInfo state;
 
     CharacterController CharaCon;
@@ -68,6 +67,8 @@ public class BossBehavior : MonoBehaviour
     bool IsAttackCoroutineRunning;
     bool IsPunchCoroutineRunning;
     bool IsHitStiopEnabled;
+
+    float HitStopTime;
     // Use this for initialization
     void Start()
     {
@@ -76,7 +77,6 @@ public class BossBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         IsDead = false;
         IsArrived = false;
-        locomotion = new Locomotion(animator);
         state = animator.GetCurrentAnimatorStateInfo(0);
         boxCol.enabled = false;
         boxCol2.enabled = false;
@@ -89,7 +89,7 @@ public class BossBehavior : MonoBehaviour
         var smObserver = animator.GetBehaviour<StateMachineObserver>();
         smObserver.onStateExit = onStateExit;
         StayTime = 0;
-
+        HitStopTime = MotionManager.Instance.GetComponent<MotionManager>().HitStopTime;
         Attack1Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("BossAttack");
         Attack2Timings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("BossAttack2");
         DamageReactTimings = MotionManager.Instance.GetComponent<MotionManager>().GetMotionValue("BossDamageReact");
@@ -376,7 +376,7 @@ public class BossBehavior : MonoBehaviour
         {
             bool IsGuard_Player = GameObjectManager.getAnimator(Player).GetBool("Guard");
             if (IsGuard_Player) return;
-            StartCoroutine(AttackHitStop(0.1f));
+            StartCoroutine(AttackHitStop(HitStopTime));
             Damage();
         }
     }
