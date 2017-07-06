@@ -277,12 +277,13 @@ public class BossBehavior : MonoBehaviour
     {
         if (!animator.GetBool("Damaging"))
         {
+            SE.SEStart(7);
             animator.SetBool("Damaging", true);
-            animator.Play("Damaged");
             GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
             Destroy(blood, 0.5f);
             Life--;
             Debug.Log("Boss Life Changed to : " + Life);
+            if (Life>=3) animator.Play("Damaged");
             if (Life <= 0) Death();
         }
     }

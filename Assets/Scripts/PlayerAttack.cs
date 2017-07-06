@@ -57,7 +57,6 @@ public class PlayerAttack : MonoBehaviour
         if (!IsGuard && col.tag == "Boss")
         {
             StartCoroutine(Player.GetComponent<PlayerBehavior>().AttackHitStop(HitStopTime));
-            SE.SEStart(7);
            
         }
     }

@@ -124,17 +124,17 @@ public class PlayerBehavior : MonoBehaviour
             if (IsRolling) return;
 
             if (IsIdle && !IsSkillEnable) SkillManager.SkillPoint += GainSkillPoint;
-          
 
-            if (Input.GetButtonDown("Rolling") && !IsRolling) Rolling();
+
+            if ((Input.GetButtonDown("Rolling") && !IsRolling) && !Animator.GetBool("Attacking")) Rolling();
 
             if (Input.GetButtonDown("Guard") && !Animator.GetBool("Attacking")) Guard();
 
             if (Input.GetButtonUp("Guard")) GuardFinished();
-               
+
             Skill();
 
-            if (Input.GetButtonDown("Attack")) Attack();
+            if (Input.GetButtonDown("Attack") && !IsRolling) Attack();
 
         }
         else
@@ -152,10 +152,26 @@ public class PlayerBehavior : MonoBehaviour
 
     void Rolling()
     {
+        if (IsAttackCoroutineRunning)
+        {
+            StopCoroutine(StartAttack());
+            Animator.SetBool("ComboAttack", false);
+            Animator.SetBool("Attacking", false);
+            IsAttackCoroutineRunning = false;
+        }
+
+        if (IsCounterAttackCoroutineRunning)
+        {
+            StopCoroutine(StartCounterAttack());
+            IsCounterAttackCoroutineRunning = false;
+        }
+
         AttackCollider(false);
         IsRolling = true;
         Animator.SetTrigger("Rolling");
         SE.SEStart(12);
+        Debug.Log("Roll!!!!");
+        return;
     }
 
     void Guard()
@@ -181,7 +197,13 @@ public class PlayerBehavior : MonoBehaviour
     void Attack()
     {
         if (Animator.GetBool("Attacking") && IsAttackCoroutineRunning) Animator.SetBool("ComboAttack", true);
-        else Animator.SetTrigger("Attack");
+        else
+        {
+            Animator.SetBool("Attacking", true);
+            Animator.SetTrigger("Attack");
+        }
+        Debug.Log("AttackIng!!");
+        return;
     }
 
     void Skill()
@@ -221,6 +243,26 @@ public class PlayerBehavior : MonoBehaviour
             IsSkillEnable = false;
             CameraObject.GetComponent<PostEffect>().enabled = false;
         }
+    }
+
+    void ResetStatus()
+    {
+        if (IsAttackCoroutineRunning)
+        {
+            StopCoroutine(StartAttack());
+            IsAttackCoroutineRunning = false;
+        }
+
+        if (IsCounterAttackCoroutineRunning)
+        {
+            StopCoroutine(StartCounterAttack());
+            IsCounterAttackCoroutineRunning = false;
+        }
+
+        IsRolling = false;
+        Animator.SetBool("Guard", false);
+        Animator.SetBool("ComboAttack", false);
+        Animator.SetBool("Attacking", false);
     }
 
     void PlayerInvicible(bool _Is)
@@ -283,7 +325,7 @@ public class PlayerBehavior : MonoBehaviour
 
     IEnumerator StartAttack()
     {
-       
+
         if (IsAttackCoroutineRunning) yield break;
         IsAttackCoroutineRunning = true;
         Animator.SetBool("Attacking", true);
@@ -348,8 +390,8 @@ public class PlayerBehavior : MonoBehaviour
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Rolling"))
         {
             GetComponent<Rigidbody>().AddForce(transform.forward * 1000, ForceMode.Force);
-            AttackCollider(false);
-            Debug.Log("Rolling Start");
+            ResetStatus();
+            IsRolling = true;
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("ComboAttack"))
         {
@@ -357,25 +399,13 @@ public class PlayerBehavior : MonoBehaviour
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Idle"))
         {
-            Debug.Log("Idle Start");
+
+            ResetStatus();
             PlayerInvicible(false);
             Animator.SetBool("Attacking", false);
             WeaponCollider.enabled = false;
             IsRolling = false;
             IsIdle = true;
-            if (IsAttackCoroutineRunning)
-            {
-                StopCoroutine(StartAttack());
-                Animator.SetBool("ComboAttack", false);
-                Animator.SetBool("Attacking", false);
-                IsAttackCoroutineRunning = false;
-            }
-
-            if (IsCounterAttackCoroutineRunning)
-            {
-                StopCoroutine(StartCounterAttack());
-                IsCounterAttackCoroutineRunning = false;
-            }
         }
         else if (animator.GetCurrentAnimatorStateInfo(layerIndex).IsName("Death"))
         {

@@ -49,14 +49,16 @@ public class EnemyAttack : MonoBehaviour
             if (!IsGuard_Player && !IsCounterAttacking && col.tag == "Hero")
             {
                Debug.Log("プレイヤーに当たった");
-                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(HitStopTime));
+                if (Enemy.GetComponent<EnemyBehavior>() != null) StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(HitStopTime));
+                else StartCoroutine(Enemy.GetComponent<BossBehavior>().AttackHitStop(HitStopTime));
                 col.GetComponent<PlayerBehavior>().Damged();
                 CameraMove.ShakeCamera();
             }
             else if (IsGuard_Player && col.tag == "Hero")
             {
                 SE.SEStart(3);
-                StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(HitStopTime));
+                if (Enemy.GetComponent<EnemyBehavior>() != null) StartCoroutine(Enemy.GetComponent<EnemyBehavior>().AttackHitStop(HitStopTime));
+                else StartCoroutine(Enemy.GetComponent<BossBehavior>().AttackHitStop(HitStopTime));
                 GameObjectManager.getAnimator(Player).SetTrigger("KnockBack");
                 CameraMove.ShakeCamera();
                 col.GetComponent<PlayerBehavior>().MakeWeaponSpark(transform.position);
