@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using MotionValues;
+using DG.Tweening;
 
 [RequireComponent(typeof(Animator))]
 
@@ -112,6 +113,7 @@ public class PlayerBehavior : MonoBehaviour
         if (Animator && Camera.main && !Animator.GetBool("Death"))
         {
             JoystickToEvents.Do(transform, Camera.main.transform, ref speed, ref direction);
+            transform.Rotate(0,direction*180,0);
             locomotion.Do(speed * 6.0f, direction * 180);
 
             if (IsCrisis && !MakeAura)
