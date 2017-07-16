@@ -87,7 +87,7 @@ public class EnemyBehavior : MonoBehaviour
     void Update()
     {
         state = animator.GetCurrentAnimatorStateInfo(0);
-        IsDead = state.IsName("Locomotion.Death");
+       
 
         if (IsDead || !KilledNum.IsStarted) return;
 

@@ -100,7 +100,7 @@ public class BossBehavior : MonoBehaviour
     void Update()
     {
         state = animator.GetCurrentAnimatorStateInfo(0);
-        IsDead = state.IsName("Locomotion.Death");
+       
 
         if (!CanMove || IsDead || !KilledNum.IsStarted) return;
 
@@ -279,11 +279,17 @@ public class BossBehavior : MonoBehaviour
         {
             SE.SEStart(7);
             animator.SetBool("Damaging", true);
+            StartCoroutine(Damaging());
             GameObject blood = Instantiate(bloodParticle, transform.position + new Vector3(0.0f, 1f, 0.0f), Quaternion.identity);
             Destroy(blood, 0.5f);
             Life--;
             Debug.Log("Boss Life Changed to : " + Life);
-            if (Life>=3) animator.Play("Damaged");
+            if (Life >= 3)
+            {
+                animator.Play("Damaged");
+                return;
+            }
+
             if (Life <= 0) Death();
         }
     }
@@ -331,7 +337,7 @@ public class BossBehavior : MonoBehaviour
             //   Debug.Log("Enemy : Death Start");
             animator.SetBool("Attack", false);
             AttackCollider(false);
-            StartCoroutine(Damaging());
+           
             if (IsAttackCoroutineRunning)
             {
                 IsAttackCoroutineRunning = false;
